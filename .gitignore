@@ -1,0 +1,27 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+
+# --- Environnement Virtuel  ---
+venv/
+env/
+.venv/
+
+# --- Variables d'environnement & Secrets ---
+.env
+.flaskenv
+instance/
+
+# --- Base de données ---
+*.sqlite3
+*.db
+
+# --- IDE & Éditeurs ---
+.vscode/
+.idea/
+*.swp
+
+# --- Système (Mac & Windows) ---
+.DS_Store
+Thumbs.db
