@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container text-center mt-5">
+    <h1>🎮 Bienvenue au Hub Esport</h1>
+    <p>La plateforme de réservation ultime.</p>
+    
+    {% if current_user.is_authenticated %}
+        <div class="alert alert-success mt-4">
+            <h4>Heureux de te revoir, {{ current_user.username }} !</h4>
+            <p>Prêt à réserver ton poste ?</p>
+        </div>
+    {% else %}
+        <a href="{{ url_for('auth.register') }}" class="btn btn-primary mt-3">Créer un compte</a>
+    {% endif %}
+</div>
+{% endblock %}

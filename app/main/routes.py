@@ -1,5 +1,6 @@
+from flask import render_template
 from app.main import bp
 
 @bp.route('/')
 def index():
-    return "Bonjour Hub Esport ! Ceci est la page d'accueil."
+    return render_template('main/index.html')
