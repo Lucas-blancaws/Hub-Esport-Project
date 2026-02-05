@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">🛠️ Administration du Hub</h2>
+
+    <div class="row">
+        
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-dark text-white">Parc Informatique</div>
+                <div class="card-body">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nom</th>
+                                <th>Type</th>
+                                <th>Statut</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for station in stations %}
+                            <tr>
+                                <td>#{{ station.id }}</td>
+                                <td><strong>{{ station.name }}</strong></td>
+                                <td>{{ station.type }}</td>
+                                <td>
+                                    {% if station.status == 'available' %}
+                                        <span class="badge bg-success">Dispo</span>
+                                    {% else %}
+                                        <span class="badge bg-warning text-dark">Maint.</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-danger">🗑️</button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-primary">
+                <div class="card-header bg-primary text-white">Ajouter un PC</div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label class="form-label">Nom du PC</label>
+                            <input type="text" name="name" class="form-control" placeholder="ex: PC-Ultra-04" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Type</label>
+                            <select name="type" class="form-select">
+                                <option value="Elite">Elite (Haut de gamme)</option>
+                                <option value="Standard">Standard</option>
+                                <option value="Console">Console</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Specs (Config)</label>
+                            <textarea name="specs" class="form-control" rows="3" placeholder="ex: RTX 4070, i7..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-success w-100">➕ Créer</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

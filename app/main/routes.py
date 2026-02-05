@@ -4,6 +4,7 @@ from datetime import datetime
 from app.models import Reservation, Station
 from app.main import bp
 from app import db
+from flask import flash, redirect, url_for
 
 @bp.route('/')
 def index():
@@ -66,3 +67,28 @@ def reserve():
     db.session.commit()
     
     return jsonify({'success': True, 'message': '✅ Réservation confirmée !'})
+
+@bp.route('/admin', methods=['GET', 'POST'])
+@login_required
+def admin_panel():
+    # 1. SÉCURITÉ : On vérifie le badge à l'entrée 👮‍♂️
+    if current_user.role != 'admin':
+        flash("Accès interdit : Réservé aux administrateurs.")
+        return redirect(url_for('main.index'))
+
+    # 2. GESTION DU FORMULAIRE D'AJOUT (POST)
+    if request.method == 'POST':
+        name = request.form['name']
+        type_pc = request.form['type']
+        specs = request.form['specs']
+        
+        # On crée la nouvelle station
+        new_station = Station(name=name, type=type_pc, specs=specs)
+        db.session.add(new_station)
+        db.session.commit()
+        flash(f"La station {name} a été ajoutée !")
+        return redirect(url_for('main.admin_panel'))
+
+    # 3. AFFICHAGE (GET)
+    stations = Station.query.order_by(Station.id).all()
+    return render_template('main/admin.html', stations=stations)
