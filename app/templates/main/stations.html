@@ -25,13 +25,80 @@
                     
                     <hr>
                     
-                    <a href="{{ url_for('main.booking') }}" class="btn btn-outline-primary w-100">
-                        Voir les dispos
-                    </a>
-                </div>
+                    {% if current_user.is_authenticated %}
+                        <button type="button" 
+                                class="btn btn-primary w-100" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#bookingModal"
+                                onclick="setStation('{{ station.id }}', '{{ station.name }}')">
+                            Réserver ce poste
+                        </button>
+                    {% else %}
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary w-100">
+                            Se connecter pour réserver
+                        </a>
+                    {% endif %}
+                </div> </div> </div> {% endfor %}
+    </div> </div> <div class="modal fade" id="bookingModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Réserver <span id="modalStationName"></span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="bookingForm">
+                    <input type="hidden" id="stationId">
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Date et Heure de début</label>
+                        <input type="datetime-local" class="form-control" id="startTime" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Date et Heure de fin</label>
+                        <input type="datetime-local" class="form-control" id="endTime" required>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-success w-100">Confirmer la réservation</button>
+                </form>
             </div>
         </div>
-        {% endfor %}
     </div>
 </div>
+
+<script>
+    // 1. Remplir l'ID de la station quand on ouvre le modal
+    function setStation(id, name) {
+        document.getElementById('stationId').value = id;
+        document.getElementById('modalStationName').innerText = name;
+    }
+
+    // 2. Gérer l'envoi du formulaire sans recharger la page (AJAX)
+    document.getElementById('bookingForm').addEventListener('submit', function(e) {
+        e.preventDefault(); // Empêche le rechargement classique
+        
+        const data = {
+            station_id: document.getElementById('stationId').value,
+            start: document.getElementById('startTime').value,
+            end: document.getElementById('endTime').value
+        };
+
+        fetch('/reserve', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                window.location.href = "{{ url_for('main.booking') }}"; // Redirige vers le planning
+            } else {
+                alert("Erreur : " + data.message); // Affiche l'erreur (Créneau pris, etc.)
+            }
+        })
+        .catch(error => console.error('Erreur:', error));
+    });
+</script>
 {% endblock %}
