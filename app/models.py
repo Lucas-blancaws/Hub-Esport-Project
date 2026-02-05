@@ -39,3 +39,24 @@ from app import login
 @login.user_loader
 def load_user(id):
     return User.query.get(int(id))
+
+class Reservation(db.Model):
+    __tablename__ = 'reservations'
+
+    id = db.Column(db.Integer, primary_key=True)
+    start_time = db.Column(db.DateTime, nullable=False)
+    end_time = db.Column(db.DateTime, nullable=False)
+    
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    
+    station_id = db.Column(db.Integer, db.ForeignKey('stations.id'), nullable=False)
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            # On pourra afficher le vrai nom du user plus tard avec une relation
+            'title': f"Réservé (Station {self.station_id})", 
+            'start': self.start_time.isoformat(),
+            'end': self.end_time.isoformat(),
+            'color': '#dc3545' # Rouge Bootstrap
+        }
