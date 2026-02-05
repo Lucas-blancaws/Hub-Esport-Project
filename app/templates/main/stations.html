@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center mb-5">🚀 Nos Postes de Combat</h1>
+
+    <div class="row">
+        {% for station in stations %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <img src="https://placehold.co/600x400/1a1a1a/FFF?text={{ station.name }}" class="card-img-top" alt="{{ station.name }}">
+                
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5 class="card-title mb-0">{{ station.name }}</h5>
+                        {% if station.status == 'available' %}
+                            <span class="badge bg-success">Disponible</span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark">Maintenance</span>
+                        {% endif %}
+                    </div>
+                    
+                    <p class="text-muted small">{{ station.type }}</p>
+                    <p class="card-text">{{ station.specs }}</p>
+                    
+                    <hr>
+                    
+                    <a href="{{ url_for('main.booking') }}" class="btn btn-outline-primary w-100">
+                        Voir les dispos
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
