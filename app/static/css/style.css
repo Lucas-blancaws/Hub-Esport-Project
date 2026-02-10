@@ -1,0 +1,195 @@
+/* app/static/css/style.css */
+body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+/* ... (Colle tout le reste du code CSS ici) ... */
+.navbar {
+    background: linear-gradient(90deg, #1a1a1a 0%, #2d2d2d 100%) !important;
+    border-bottom: 2px solid #6f42c1;
+}
+.card {
+    background-color: #1e1e1e;
+    border: 1px solid #333;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0 15px rgba(111, 66, 193, 0.4);
+    border-color: #6f42c1;
+}
+.card-title { color: #fff; font-weight: bold; }
+.text-muted { color: #aaaaaa !important; }
+.btn-primary {
+    background: linear-gradient(45deg, #6f42c1, #0d6efd);
+    border: none;
+    font-weight: bold;
+}
+.btn-primary:hover {
+    background: linear-gradient(45deg, #5a32a3, #0b5ed7);
+    box-shadow: 0 0 10px rgba(13, 110, 253, 0.5);
+}
+.modal-content {
+    background-color: #1e1e1e;
+    border: 1px solid #444;
+    color: #fff;
+}
+.modal-header { border-bottom: 1px solid #333; }
+.modal-footer { border-top: 1px solid #333; }
+.btn-close { filter: invert(1); }
+.form-control, .form-select {
+    background-color: #2d2d2d;
+    border: 1px solid #444;
+    color: #fff;
+}
+.form-control:focus, .form-select:focus {
+    background-color: #333;
+    color: #fff;
+    border-color: #6f42c1;
+    box-shadow: 0 0 5px rgba(111, 66, 193, 0.5);
+}
+/* =========================================
+   PATCH DARK MODE : GLOBAL & TEXTES
+   ========================================= */
+
+/* Forcer les titres en blanc */
+h1, h2, h3, h4, h5, h6 {
+    color: #ffffff !important;
+}
+
+/* Forcer les liens à être visibles (Violet clair) */
+a {
+    color: #a57cc4;
+    text-decoration: none;
+}
+a:hover {
+    color: #d6b3ff;
+}
+
+/* Réparer les Tableaux (Admin panel) qui sont souvent illisibles */
+.table {
+    color: #e0e0e0 !important;
+    border-color: #444;
+}
+.table thead th {
+    color: #fff;
+    border-bottom: 2px solid #6f42c1;
+}
+.table td, .table th {
+    background-color: transparent !important; /* Enlève le fond blanc par défaut */
+    border-color: #333;
+}
+
+/* =========================================
+   FULLCALENDAR : STYLE CYBERPUNK
+   ========================================= */
+
+/* Couleur du texte général dans le calendrier */
+.fc {
+    color: #e0e0e0 !important;
+}
+
+/* En-têtes des jours (Lun, Mar...) et des heures */
+.fc-col-header-cell-cushion, 
+.fc-timegrid-slot-label-cushion {
+    color: #ffffff !important;
+    text-decoration: none !important; /* Enlève le soulignement moche */
+}
+
+/* Grille et bordures (Gris foncé au lieu de gris clair) */
+.fc-theme-standard td, 
+.fc-theme-standard th,
+.fc-theme-standard .fc-scrollgrid {
+    border-color: #333 !important;
+}
+
+/* Case "Aujourd'hui" (Jaune moche par défaut -> Violet transparent) */
+.fc .fc-timegrid-col.fc-day-today {
+    background-color: rgba(111, 66, 193, 0.15) !important;
+}
+
+/* Boutons du calendrier (Mois, Semaine, Précédent...) */
+.fc-button-primary {
+    background-color: #2d2d2d !important;
+    border: 1px solid #6f42c1 !important;
+    color: #fff !important;
+}
+.fc-button-primary:hover {
+    background-color: #3d3d3d !important;
+}
+.fc-button-active {
+    background-color: #6f42c1 !important; /* Bouton actif en violet */
+    border-color: #fff !important;
+}
+
+/* Événements (Les blocs rouges/verts) */
+.fc-event {
+    border: none !important;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    padding: 2px;
+}
+/* =========================================
+   PATCH VISIBILITÉ (FORMULAIRES & TEXTES)
+   ========================================= */
+
+/* 1. Rendre visibles les titres des champs (Nom, Email, etc.) */
+label, .form-label {
+    color: #e0e0e0 !important; /* Gris très clair */
+    font-weight: 500;
+}
+
+/* 2. Rendre visibles les textes "grisés" (Specs des PC, petits textes) */
+.text-muted {
+    color: #b0b0b0 !important; /* On remplace le gris foncé par un gris clair */
+}
+
+/* 3. Rendre visibles les textes d'exemple dans les cases (Placeholders) */
+::placeholder {
+    color: #888888 !important;
+    opacity: 1; /* Nécessaire pour Firefox */
+}
+
+/* 4. Forcer la couleur du texte dans les inputs (quand tu écris) */
+input, textarea, select {
+    color: #ffffff !important;
+    background-color: #2d2d2d !important;
+    border-color: #444 !important;
+}
+
+/* 5. Nettoyer les tableaux (Admin) */
+th, td {
+    color: #e0e0e0 !important;
+}
+
+/* 6. Titres de cartes (PC-Ultra-01...) */
+.card-title, h1, h2, h3, h5 {
+    color: #ffffff !important;
+}
+/* =========================================
+   PATCH ULTIME : SPECS & TEXTES LOGIN
+   ========================================= */
+
+/* 1. Rendre les specs des PC visibles (Le texte dans les cartes) */
+.card-text {
+    color: #d1d1d1 !important; /* Gris clair presque blanc */
+}
+
+/* 2. Rendre visibles TOUS les paragraphes et petits textes par défaut */
+p, small, span {
+    color: #e0e0e0;
+}
+
+/* 3. Spécifique pour "Déjà un compte ?" sur la page de connexion */
+.text-center {
+    color: #e0e0e0 !important;
+}
+
+/* 4. Si le texte est dans un lien, on s'assure qu'il est coloré */
+a {
+    color: #a57cc4; /* Violet clair pour les liens */
+}
+a:hover {
+    color: #ffffff; /* Blanc au survol */
+}
