@@ -36,6 +36,33 @@ class Station(db.Model):
 
 from app import login
 
+class Reservation(db.Model):
+    __tablename__ = 'reservations'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    station_id = db.Column(db.Integer, db.ForeignKey('stations.id'), nullable=False)
+    
+    start_time = db.Column(db.DateTime, nullable=False)
+    end_time = db.Column(db.DateTime, nullable=False)
+
+    status = db.Column(db.String(20), default='pending')
+    amount = db.Column(db.Integer, default=0)
+    stripe_session_id = db.Column(db.String(200), nullable=True)
+
+    def to_dict(self):
+        """Convertit l'objet en JSON pour le calendrier"""
+        return {
+            'id': self.id,
+            'title': f"Réservé ({self.status})",
+            'start': self.start_time.isoformat(),
+            'end': self.end_time.isoformat(),
+            # Rouge si pas payé, Vert si payé
+            'color': '#dc3545' if self.status != 'paid' else '#198754'
+        }
+    def __repr__(self):
+        return f'<Reservation {self.id} - {self.status}>'
+
 @login.user_loader
 def load_user(id):
     return User.query.get(int(id))
