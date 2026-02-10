@@ -8,7 +8,7 @@
         {% for station in stations %}
         <div class="col-md-4 mb-4">
             <div class="card h-100 shadow-sm">
-                <img src="https://placehold.co/600x400/1a1a1a/FFF?text={{ station.name }}" class="card-img-top" alt="{{ station.name }}">
+                <img src="https://placehold.co/600x400/1e1e1e/FFF?text={{ station.name }}" class="card-img-top" alt="{{ station.name }}">
                 
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-2">
@@ -38,139 +38,155 @@
                             Se connecter pour réserver
                         </a>
                     {% endif %}
-                </div> </div> </div> {% endfor %}
-    </div> </div> <div class="modal fade" id="bookingModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Réserver <span id="modalStationName" class="text-primary"></span></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="bookingForm">
-                        <input type="hidden" id="stationId">
-                        
-                        <div class="mb-3">
-                            <label class="form-label">📅 Date de la session</label>
-                            <input type="date" class="form-control" id="bookingDate" required>
+                </div> 
+            </div> 
+        </div> 
+        {% endfor %}
+    </div> 
+</div> 
+
+<div class="modal fade" id="bookingModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Réserver <span id="modalStationName" class="text-primary"></span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="bookingForm">
+                    <input type="hidden" id="stationId">
+                    
+                    <div class="mb-3">
+                        <label class="form-label">📅 Date de la session</label>
+                        <input type="date" class="form-control" id="bookingDate" required>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label">🕒 Début</label>
+                            <select class="form-select" id="startHour" required>
+                                <option value="10:00">10h00</option>
+                                <option value="11:00">11h00</option>
+                                <option value="12:00">12h00</option>
+                                <option value="13:00">13h00</option>
+                                <option value="14:00">14h00</option>
+                                <option value="15:00">15h00</option>
+                                <option value="16:00">16h00</option>
+                                <option value="17:00">17h00</option>
+                                <option value="18:00">18h00</option>
+                                <option value="19:00">19h00</option>
+                                <option value="20:00">20h00</option>
+                                <option value="21:00">21h00</option>
+                            </select>
                         </div>
-    
-                        <div class="row">
-                            <div class="col-6 mb-3">
-                                <label class="form-label">🕒 Début</label>
-                                <select class="form-select" id="startHour" required>
-                                    <option value="10:00">10h00</option>
-                                    <option value="11:00">11h00</option>
-                                    <option value="12:00">12h00</option>
-                                    <option value="13:00">13h00</option>
-                                    <option value="14:00">14h00</option>
-                                    <option value="15:00">15h00</option>
-                                    <option value="16:00">16h00</option>
-                                    <option value="17:00">17h00</option>
-                                    <option value="18:00">18h00</option>
-                                    <option value="19:00">19h00</option>
-                                    <option value="20:00">20h00</option>
-                                    <option value="21:00">21h00</option>
-                                </select>
-                            </div>
-    
-                            <div class="col-6 mb-3">
-                                <label class="form-label">⏳ Durée</label>
-                                <select class="form-select" id="duration" required>
-                                    <option value="1">1 heure</option>
-                                    <option value="2">2 heures</option>
-                                    <option value="3">3 heures</option>
-                                    <option value="4">4 heures</option>
-                                </select>
-                            </div>
+
+                        <div class="col-6 mb-3">
+                            <label class="form-label">⏳ Durée</label>
+                            <select class="form-select" id="duration" required>
+                                <option value="1">1 heure</option>
+                                <option value="2">2 heures</option>
+                                <option value="3">3 heures</option>
+                                <option value="4">4 heures</option>
+                            </select>
                         </div>
-                        
-                        <div class="alert alert-secondary small mt-2">
-                            💡 Fin prévue à : <span id="endTimePreview">--:--</span>
-                        </div>
-    
-                        <button type="submit" class="btn btn-primary w-100 fw-bold">🚀 Valider la réservation</button>
-                    </form>
-                </div>
+                    </div>
+                    
+                    <div class="alert alert-secondary small mt-2">
+                        💡 Fin prévue à : <span id="endTimePreview">--:--</span>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 fw-bold">💳 Payer et Réserver</button>
+                </form>
             </div>
         </div>
     </div>
-    
-    <script>
-        // 1. Setup du Modal
-        function setStation(id, name) {
-            document.getElementById('stationId').value = id;
-            document.getElementById('modalStationName').innerText = name;
-            
-            // Mettre la date d'aujourd'hui par défaut
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('bookingDate').value = today;
-            document.getElementById('bookingDate').min = today; // Empêche de réserver dans le passé
-            
-            updateEndTime(); // Mettre à jour l'aperçu
-        }
-    
-        // 2. Petit calcul dynamique pour afficher l'heure de fin à l'utilisateur
-        function updateEndTime() {
-            const startHour = parseInt(document.getElementById('startHour').value.split(':')[0]);
-            const duration = parseInt(document.getElementById('duration').value);
-            const endHour = startHour + duration;
-            document.getElementById('endTimePreview').innerText = endHour + "h00";
-        }
-    
-        // Écouteurs pour mettre à jour l'heure de fin quand on change les valeurs
-        document.getElementById('startHour').addEventListener('change', updateEndTime);
-        document.getElementById('duration').addEventListener('change', updateEndTime);
-    
-        // 3. Envoi du formulaire (Conversion magique pour le Python)
-        document.getElementById('bookingForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-    
-            const date = document.getElementById('bookingDate').value;
-            const time = document.getElementById('startHour').value;
-            const duration = parseInt(document.getElementById('duration').value);
-            
-            // Création de la date de début au format ISO (ex: 2026-02-06T14:00)
-            const startDateTime = `${date}T${time}`;
-            
-            // Calcul de la date de fin en JavaScript
-            let endDateObj = new Date(startDateTime);
-            endDateObj.setHours(endDateObj.getHours() + duration);
-            
-            // Petite astuce pour garder le format ISO propre en local
-            // (On triche un peu pour éviter les problèmes de fuseau horaire UTC/Local simple)
-            const endDateTime = endDateObj.getFullYear() + '-' + 
-                String(endDateObj.getMonth() + 1).padStart(2, '0') + '-' + 
-                String(endDateObj.getDate()).padStart(2, '0') + 'T' + 
-                String(endDateObj.getHours()).padStart(2, '0') + ':' + 
-                String(endDateObj.getMinutes()).padStart(2, '0');
-    
-            const data = {
-                station_id: document.getElementById('stationId').value,
-                start: startDateTime,
-                end: endDateTime
-            };
-    
-            fetch('/reserve', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Fermer le modal proprement
-                    const modalEl = document.getElementById('bookingModal');
-                    const modal = bootstrap.Modal.getInstance(modalEl);
-                    modal.hide();
-                    
-                    alert("🎮 " + data.message);
-                    window.location.href = "{{ url_for('main.booking') }}";
-                } else {
-                    alert("⚠️ Erreur : " + data.message);
-                }
-            })
-            .catch(error => console.error('Erreur:', error));
+</div>
+
+<script>
+    // 1. Setup du Modal
+    function setStation(id, name) {
+        document.getElementById('stationId').value = id;
+        document.getElementById('modalStationName').innerText = name;
+        
+        // Mettre la date d'aujourd'hui par défaut
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('bookingDate').value = today;
+        document.getElementById('bookingDate').min = today;
+        
+        updateEndTime(); // Mettre à jour l'aperçu
+    }
+
+    // 2. Calcul dynamique de l'heure de fin
+    function updateEndTime() {
+        const startHour = parseInt(document.getElementById('startHour').value.split(':')[0]);
+        const duration = parseInt(document.getElementById('duration').value);
+        const endHour = startHour + duration;
+        document.getElementById('endTimePreview').innerText = endHour + "h00";
+    }
+
+    // Écouteurs pour mettre à jour l'heure
+    document.getElementById('startHour').addEventListener('change', updateEndTime);
+    document.getElementById('duration').addEventListener('change', updateEndTime);
+
+    // 3. L'ENVOI VERS STRIPE 🚀
+    document.getElementById('bookingForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        // A. On change le bouton pour dire "Patientez..." (UX)
+        const btn = document.querySelector('button[type="submit"]');
+        const originalText = btn.innerText;
+        btn.innerText = "🔄 Redirection Stripe...";
+        btn.disabled = true;
+
+        // B. Préparation des données
+        const date = document.getElementById('bookingDate').value;
+        const time = document.getElementById('startHour').value;
+        const duration = parseInt(document.getElementById('duration').value);
+        
+        // Création de la date de début ISO
+        const startDateTime = `${date}T${time}`;
+        
+        // Calcul date de fin
+        let endDateObj = new Date(startDateTime);
+        endDateObj.setHours(endDateObj.getHours() + duration);
+        
+        const endDateTime = endDateObj.getFullYear() + '-' + 
+            String(endDateObj.getMonth() + 1).padStart(2, '0') + '-' + 
+            String(endDateObj.getDate()).padStart(2, '0') + 'T' + 
+            String(endDateObj.getHours()).padStart(2, '0') + ':' + 
+            String(endDateObj.getMinutes()).padStart(2, '0');
+
+        const data = {
+            station_id: document.getElementById('stationId').value,
+            start: startDateTime,
+            end: endDateTime
+        };
+
+        // C. Envoi au serveur
+        fetch('/reserve', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            // 👉 C'EST ICI QUE ÇA CHANGE
+            if (data.success && data.checkout_url) {
+                // Redirection vers le paiement Stripe
+                window.location.href = data.checkout_url;
+            } else {
+                // Erreur
+                alert("⚠️ Erreur : " + (data.message || "Problème inconnu"));
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert("Erreur technique.");
+            btn.innerText = originalText;
+            btn.disabled = false;
         });
-    </script>
+    });
+</script>
 {% endblock %}

@@ -5,6 +5,8 @@ from app.models import Reservation, Station
 from app.main import bp
 from app import db
 from flask import flash, redirect, url_for
+import stripe
+from flask import current_app, redirect, url_for
 
 @bp.route('/')
 def index():
@@ -26,47 +28,68 @@ def stations():
     return render_template('main/stations.html', stations=stations_list)
 
 @bp.route('/reserve', methods=['POST'])
-@login_required 
+@login_required
 def reserve():
-    # Maintenant 'request' va marcher car on l'a importé !
     data = request.get_json()
     
     station_id = data.get('station_id')
     start_str = data.get('start')
-    end_str = data.get('end')
     
+    stripe.api_key = current_app.config['STRIPE_SECRET_KEY']
+
     try:
-        # Maintenant 'datetime' va marcher !
         start_time = datetime.fromisoformat(start_str)
-        end_time = datetime.fromisoformat(end_str)
+        end_time = datetime.fromisoformat(data.get('end'))
     except ValueError:
         return jsonify({'success': False, 'message': 'Format de date invalide'}), 400
 
-    if start_time >= end_time:
-        return jsonify({'success': False, 'message': 'La fin doit être après le début !'}), 400
-        
-    # Vérification des conflits
+    duration_hours = (end_time - start_time).total_seconds() / 3600
+    price_per_hour = 500  # 500 centimes = 5.00€
+    total_amount = int(duration_hours * price_per_hour)
+
+    if total_amount < 50:
+         return jsonify({'success': False, 'message': 'Durée trop courte (minimum 10min)'}), 400
+
     conflict = Reservation.query.filter(
         Reservation.station_id == station_id,
         Reservation.start_time < end_time,
-        Reservation.end_time > start_time
+        Reservation.end_time > start_time,
+        Reservation.status != 'cancelled'
     ).first()
 
     if conflict:
         return jsonify({'success': False, 'message': '❌ Créneau déjà pris !'}), 409
 
-    # Enregistrement
-    new_resa = Reservation(
-        user_id=current_user.id, # Maintenant 'current_user' va marcher !
-        station_id=station_id,
-        start_time=start_time,
-        end_time=end_time
-    )
-    
-    db.session.add(new_resa)
-    db.session.commit()
-    
-    return jsonify({'success': True, 'message': '✅ Réservation confirmée !'})
+    try:
+        checkout_session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=[{
+                'price_data': {
+                    'currency': 'eur',
+                    'product_data': {
+                        'name': f'Réservation Station #{station_id}',
+                        'description': f'Session de {int(duration_hours)}h',
+                    },
+                    'unit_amount': total_amount,
+                },
+                'quantity': 1,
+            }],
+            mode='payment',
+            success_url=url_for('main.payment_success', _external=True) + '?session_id={CHECKOUT_SESSION_ID}',
+            cancel_url=url_for('main.payment_cancel', _external=True),
+            
+            metadata={
+                'user_id': current_user.id,
+                'station_id': station_id,
+                'start': start_str,
+                'end': data.get('end')
+            }
+        )
+        return jsonify({'success': True, 'checkout_url': checkout_session.url})
+
+    except Exception as e:
+        print(f"Erreur Stripe : {e}")
+        return jsonify({'success': False, 'message': "Erreur de paiement"}), 500
 
 @bp.route('/admin', methods=['GET', 'POST'])
 @login_required
@@ -92,3 +115,54 @@ def admin_panel():
     # 3. AFFICHAGE (GET)
     stations = Station.query.order_by(Station.id).all()
     return render_template('main/admin.html', stations=stations)
+
+@bp.route('/payment/success')
+def payment_success():
+    # 1. On récupère l'ID de session que Stripe a mis dans l'URL
+    session_id = request.args.get('session_id')
+    
+    if not session_id:
+        return "Erreur : Pas de session de paiement trouvée."
+
+    try:
+        stripe.api_key = current_app.config['STRIPE_SECRET_KEY']
+        session = stripe.checkout.Session.retrieve(session_id)
+        
+        # 3. On vérifie si on a déjà enregistré cette réservation 
+        existing_resa = Reservation.query.filter_by(stripe_session_id=session_id).first()
+        if existing_resa:
+            return render_template('main/success.html')
+
+        # 4. On récupère les infos qu'on avait stockées dans les 'metadata'
+        meta = session.metadata
+        user_id = meta['user_id']
+        station_id = meta['station_id']
+        start_str = meta['start'] # C'est une string ISO
+        end_str = meta['end']
+
+        start_time = datetime.fromisoformat(start_str)
+        end_time = datetime.fromisoformat(end_str)
+
+        # 6. ENREGISTREMENT EN BASE DE DONNÉES 💾
+        new_resa = Reservation(
+            user_id=user_id,
+            station_id=station_id,
+            start_time=start_time,
+            end_time=end_time,
+            status='paid',
+            amount=session.amount_total,
+            stripe_session_id=session_id
+        )
+        
+        db.session.add(new_resa)
+        db.session.commit()
+        return render_template('main/success.html')
+
+    except Exception as e:
+        print(f"Erreur lors de l'enregistrement : {e}")
+        return f"Une erreur est survenue : {str(e)}"
+
+# ❌ PAGE ANNULATION
+@bp.route('/payment/cancel')
+def payment_cancel():
+    return render_template('main/cancel.html')

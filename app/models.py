@@ -4,6 +4,7 @@ from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import login
 
+# 1. TABLE UTILISATEURS
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
     
@@ -23,19 +24,20 @@ class User(UserMixin, db.Model):
     def __repr__(self):
         return f'<User {self.username}>'
 
+# 2. TABLE STATIONS (PC/CONSOLES)
 class Station(db.Model):
     __tablename__ = 'stations'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), unique=True, nullable=False)
-    type = db.Column(db.String(64))
+    type = db.Column(db.String(64)) # Elite, Console, Standard
     status = db.Column(db.String(20), default='available')
     specs = db.Column(db.Text)
+    
     def __repr__(self):
         return f'<Station {self.name}>'
 
-from app import login
-
+# 3. TABLE RÉSERVATIONS (AVEC PAIEMENT STRIPE)
 class Reservation(db.Model):
     __tablename__ = 'reservations'
 
@@ -46,44 +48,24 @@ class Reservation(db.Model):
     start_time = db.Column(db.DateTime, nullable=False)
     end_time = db.Column(db.DateTime, nullable=False)
 
-    status = db.Column(db.String(20), default='pending')
-    amount = db.Column(db.Integer, default=0)
+    # Champs pour le paiement
+    status = db.Column(db.String(20), default='pending')  # 'pending', 'paid', 'cancelled'
+    amount = db.Column(db.Integer, default=0)             # Prix en centimes
     stripe_session_id = db.Column(db.String(200), nullable=True)
 
     def to_dict(self):
-        """Convertit l'objet en JSON pour le calendrier"""
         return {
             'id': self.id,
             'title': f"Réservé ({self.status})",
             'start': self.start_time.isoformat(),
             'end': self.end_time.isoformat(),
-            # Rouge si pas payé, Vert si payé
-            'color': '#dc3545' if self.status != 'paid' else '#198754'
+            'color': '#dc3545' if self.status != 'paid' else '#198754' 
         }
+
     def __repr__(self):
         return f'<Reservation {self.id} - {self.status}>'
 
+# GESTION LOGIN
 @login.user_loader
 def load_user(id):
     return User.query.get(int(id))
-
-class Reservation(db.Model):
-    __tablename__ = 'reservations'
-
-    id = db.Column(db.Integer, primary_key=True)
-    start_time = db.Column(db.DateTime, nullable=False)
-    end_time = db.Column(db.DateTime, nullable=False)
-    
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    
-    station_id = db.Column(db.Integer, db.ForeignKey('stations.id'), nullable=False)
-    
-    def to_dict(self):
-        return {
-            'id': self.id,
-            # On pourra afficher le vrai nom du user plus tard avec une relation
-            'title': f"Réservé (Station {self.station_id})", 
-            'start': self.start_time.isoformat(),
-            'end': self.end_time.isoformat(),
-            'color': '#dc3545' # Rouge Bootstrap
-        }

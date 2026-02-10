@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5 text-center">
+    <div class="card shadow-lg p-5 border-success" style="background-color: #1e1e1e;">
+        <div class="card-body">
+            <h1 class="display-1">🎉</h1>
+            <h2 class="text-success mb-4">Paiement Validé !</h2>
+            <p class="lead text-light">Ta station de combat est réservée.</p>
+            <p class="text-muted">Tu as reçu un email de confirmation (simulation).</p>
+            
+            <hr class="my-4 border-secondary">
+            
+            <a href="{{ url_for('main.booking') }}" class="btn btn-primary btn-lg">
+                📅 Voir mon planning
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
