@@ -7,6 +7,8 @@ from app import db
 from flask import flash, redirect, url_for
 import stripe
 from flask import current_app, redirect, url_for
+from flask_mail import Message
+from app import mail
 
 @bp.route('/')
 def index():
@@ -156,6 +158,34 @@ def payment_success():
         
         db.session.add(new_resa)
         db.session.commit()
+        try:
+            # 1. On récupère l'email saisi DANS STRIPE (Celui du client réel)
+            client_email = session.customer_details.email
+            
+            # S'il n'y a pas d'email dans Stripe, on prend celui du compte utilisateur par défaut
+            if not client_email:
+                client_email = current_user.email
+            
+            print(f"📧 Tentative d'envoi d'email à : {client_email}")
+
+            msg = Message('Confirmation de réservation 🎮',
+                          sender=current_app.config['MAIL_USERNAME'],
+                          recipients=[client_email]) # 👈 On envoie au client Stripe !
+            
+            msg.body = f"""
+            Salut Gamer ! 🎮
+            
+            Ta réservation est confirmée.
+            📅 Date : {start_str}
+            💰 Montant : {session.amount_total / 100}€
+            
+            L'équipe Hub Esport te remercie.
+            """
+            
+            mail.send(msg)
+            print("✅ Email envoyé avec succès !")
+        except Exception as e:
+            print(f"⚠️ ERREUR MAIL : {e}")
         return render_template('main/success.html')
 
     except Exception as e:
