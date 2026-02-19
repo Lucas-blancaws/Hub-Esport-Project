@@ -8,7 +8,7 @@
         {% for station in stations %}
         <div class="col-md-4 mb-4">
             <div class="card h-100 shadow-sm">
-                <img src="https://placehold.co/600x400/1e1e1e/FFF?text={{ station.name }}" class="card-img-top" alt="{{ station.name }}">
+                <img src="{{ station.image_url }}" class="card-img-top" alt="{{ station.name }}" style="height: 200px; object-fit: cover;">
                 
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-2">

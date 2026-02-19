@@ -4,6 +4,9 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_mail import Mail
+import os
+import cloudinary
+
 db = SQLAlchemy()
 migrate = Migrate()
 login = LoginManager()
@@ -19,6 +22,13 @@ def create_app(config_class=Config):
     login.init_app(app)
     mail.init_app(app)
 
+    cloudinary.config(
+        cloud_name=os.environ.get('CLOUDINARY_CLOUD_NAME'),
+        api_key=os.environ.get('CLOUDINARY_API_KEY'),
+        api_secret=os.environ.get('CLOUDINARY_API_SECRET')
+    )
+
+    # --- ENREGISTREMENT DES BLUEPRINTS ---
     from app.main import bp as main_bp
     app.register_blueprint(main_bp)
 

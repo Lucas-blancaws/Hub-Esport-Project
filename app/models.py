@@ -34,6 +34,9 @@ class Station(db.Model):
     status = db.Column(db.String(20), default='available')
     specs = db.Column(db.Text)
     price_per_hour = db.Column(db.Float, default=5.0)
+    image_url = db.Column(db.String(500), default='https://placehold.co/600x400/1e1e1e/FFF?text=PC+Gamer')
+    reservations = db.relationship('Reservation', backref='station', cascade='all, delete-orphan')
+    is_active = db.Column(db.Boolean, default=True)
 
     def __repr__(self):
         return f'<Station {self.name}>'

@@ -6,6 +6,7 @@ from app.services import reservation_service as ResaService
 from app.services import station_service as StationService
 from app.services import payment_service as PaymentService
 from app.services import email_service as EmailService
+import cloudinary.uploader
 
 # --- PAGES VUES ---
 @bp.route('/')
@@ -111,13 +112,27 @@ def admin_panel():
 
     if request.method == 'POST':
         # On récupère le prix (s'il est vide, on met 5.0 par défaut par sécurité)
-        price = request.form.get('price_per_hour', 5.0) 
+        price = request.form.get('price_per_hour', 5.0)
+
+        image_url = 'https://placehold.co/600x400/1e1e1e/FFF?text=PC+Gamer' # Image par défaut
+
+        if 'station_image' in request.files:
+            file = request.files['station_image']
+            if file and file.filename != '':
+                try:
+                    # Cloudinary envoie le fichier et le compresse !
+                    upload_result = cloudinary.uploader.upload(file)
+                    # On récupère le lien sécurisé (https) de l'image stockée
+                    image_url = upload_result.get('secure_url')
+                except Exception as e:
+                    flash(f"Erreur d'upload de l'image : {str(e)}", "danger")
 
         StationService.create_station(
             name=request.form['name'],
             type_pc=request.form['type'],
             specs=request.form['specs'],
-            price_per_hour=float(price) # 👈 On ajoute le prix ici !
+            price_per_hour=float(price),
+            image_url=image_url
         )
         flash("Station ajoutée avec succès !", "success")
         return redirect(url_for('main.admin_panel'))
@@ -145,4 +160,43 @@ def update_station_price(station_id):
         db.session.commit()
         flash(f'Le prix du poste "{station.name}" a été mis à jour à {new_price}€/h.', 'success')
         
+    return redirect(url_for('main.admin_panel'))
+
+@bp.route('/admin/station/<int:station_id>/delete', methods=['POST'])
+@login_required
+def delete_station(station_id):
+    if current_user.role != 'admin':
+        abort(403)
+        
+    if StationService.delete_station(station_id):
+        flash("Poste supprimé avec succès.", "success")
+    else:
+        flash("Erreur lors de la suppression.", "danger")
+        
+    return redirect(url_for('main.admin_panel'))
+
+@bp.route('/admin/station/<int:station_id>/edit', methods=['POST'])
+@login_required
+def edit_station(station_id):
+    if current_user.role != 'admin':
+        abort(403)
+        
+    station = Station.query.get_or_404(station_id)
+    
+    # Mise à jour des textes
+    station.name = request.form.get('name')
+    station.specs = request.form.get('specs')
+    
+    # Gestion de la photo si une nouvelle est envoyée
+    if 'station_image' in request.files:
+        file = request.files['station_image']
+        if file and file.filename != '':
+            try:
+                upload_result = cloudinary.uploader.upload(file)
+                station.image_url = upload_result.get('secure_url')
+            except Exception as e:
+                flash(f"Erreur d'upload nouvelle image: {str(e)}", "danger")
+
+    db.session.commit()
+    flash(f"Poste '{station.name}' mis à jour avec succès !", "success")
     return redirect(url_for('main.admin_panel'))

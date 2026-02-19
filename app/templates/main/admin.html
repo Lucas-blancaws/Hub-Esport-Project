@@ -49,7 +49,17 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <button class="btn btn-sm btn-outline-danger" title="Supprimer">🗑️</button>
+                                    <button type="button" 
+                                            class="btn btn-sm btn-outline-danger" 
+                                            onclick="confirmDelete('{{ station.id }}', '{{ station.name }}')">
+                                        🗑️
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-primary edit-btn" 
+                                            data-id="{{ station.id }}"
+                                            data-name="{{ station.name }}"
+                                            data-specs="{{ station.specs }}">
+                                        ✏️
+                                    </button>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -65,7 +75,7 @@
                     <h5 class="mb-0">Ajouter un PC</h5>
                 </div>
                 <div class="card-body">
-                    <form method="POST">
+                    <form method="POST" enctype="multipart/form-data">
                         <div class="mb-3">
                             <label class="form-label">Nom du PC</label>
                             <input type="text" name="name" class="form-control" placeholder="ex: PC-Ultra-04" required>
@@ -88,6 +98,10 @@
                             <label class="form-label">Specs (Config)</label>
                             <textarea name="specs" class="form-control" rows="3" placeholder="ex: RTX 4070, i7..."></textarea>
                         </div>
+                        <div class="mb-3">
+                            <label class="form-label">Photo du PC (Optionnel)</label>
+                            <input type="file" name="station_image" class="form-control bg-dark text-white border-secondary" accept="image/*">
+                        </div>
                         <button type="submit" class="btn btn-success w-100 fw-bold">➕ Créer la machine</button>
                     </form>
                 </div>
@@ -96,4 +110,89 @@
 
     </div>
 </div>
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-danger">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title text-white">⚠️ Confirmation de suppression</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-white">Êtes-vous sûr de vouloir supprimer le poste <strong id="stationNameDisplay" class="text-danger"></strong> ?</p>
+                <p class="text-muted small">Cette action est irréversible et supprimera toutes les données liées.</p>
+            </div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Annuler</button>
+                <form id="deleteForm" method="POST" action="">
+                    <button type="submit" class="btn btn-danger">Supprimer définitivement</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content border-primary">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title">Modifier le poste : <span id="editTitleName"></span></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="editForm" method="POST" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label text-white">Nom du PC</label>
+                        <input type="text" name="name" id="editName" class="form-control bg-dark text-white border-secondary">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-white">Specs (Config)</label>
+                        <textarea name="specs" id="editSpecs" class="form-control bg-dark text-white border-secondary" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-white">Nouvelle Photo (Optionnel)</label>
+                        <input type="file" name="station_image" class="form-control bg-dark text-white border-secondary" accept="image/*">
+                        <div class="form-text">Laisse vide pour garder l'ancienne photo.</div>
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    // --- LOGIQUE SUPPRESSION ---
+    function confirmDelete(id, name) {
+        document.getElementById('stationNameDisplay').innerText = name;
+        const form = document.getElementById('deleteForm');
+        form.action = "/admin/station/" + id + "/delete";
+        
+        const myModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        myModal.show();
+    }
+    
+    // --- LOGIQUE ÉDITION (Méthode Pro via Data-Attributes) ---
+    document.querySelectorAll('.edit-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            // On récupère les infos stockées dans le bouton
+            const id = this.getAttribute('data-id');
+            const name = this.getAttribute('data-name');
+            const specs = this.getAttribute('data-specs');
+    
+            // On remplit la modale
+            document.getElementById('editTitleName').innerText = name;
+            document.getElementById('editName').value = name;
+            document.getElementById('editSpecs').value = specs;
+            
+            // On met à jour l'URL d'envoi du formulaire
+            document.getElementById('editForm').action = "/admin/station/" + id + "/edit";
+    
+            // On affiche la modale
+            const editModal = new bootstrap.Modal(document.getElementById('editModal'));
+            editModal.show();
+        });
+    });
+    </script>
+
 {% endblock %}
