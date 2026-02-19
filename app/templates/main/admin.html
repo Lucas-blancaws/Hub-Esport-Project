@@ -2,21 +2,23 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h2 class="mb-4">🛠️ Administration du Hub</h2>
+    <h2 class="mb-4 text-white">🛠️ Administration du Hub</h2>
 
-    <div class="row">
+    <div class="row g-4">
         
         <div class="col-md-8">
-            <div class="card shadow-sm">
-                <div class="card-header bg-dark text-white">Parc Informatique</div>
-                <div class="card-body">
-                    <table class="table table-striped">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-dark text-white border-bottom border-secondary">
+                    <h5 class="mb-0">Parc Informatique</h5>
+                </div>
+                <div class="card-body overflow-auto">
+                    <table class="table table-hover align-middle">
                         <thead>
                             <tr>
                                 <th>ID</th>
                                 <th>Nom</th>
                                 <th>Type</th>
-                                <th>Statut</th>
+                                <th>Prix/h</th> <th>Statut</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -26,6 +28,19 @@
                                 <td>#{{ station.id }}</td>
                                 <td><strong>{{ station.name }}</strong></td>
                                 <td>{{ station.type }}</td>
+                                
+                                <td>
+                                    <form action="{{ url_for('main.update_station_price', station_id=station.id) }}" method="POST" class="d-flex align-items-center">
+                                        <input type="number" 
+                                               name="price_per_hour" 
+                                               value="{{ station.price_per_hour }}" 
+                                               class="form-control form-control-sm me-2 bg-dark text-white border-secondary" 
+                                               step="0.5" min="1" 
+                                               style="width: 75px;" required>
+                                        <button type="submit" class="btn btn-sm btn-outline-success" title="Sauvegarder">💾</button>
+                                    </form>
+                                </td>
+
                                 <td>
                                     {% if station.status == 'available' %}
                                         <span class="badge bg-success">Dispo</span>
@@ -34,7 +49,7 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <button class="btn btn-sm btn-outline-danger">🗑️</button>
+                                    <button class="btn btn-sm btn-outline-danger" title="Supprimer">🗑️</button>
                                 </td>
                             </tr>
                             {% endfor %}
@@ -45,8 +60,10 @@
         </div>
 
         <div class="col-md-4">
-            <div class="card shadow-sm border-primary">
-                <div class="card-header bg-primary text-white">Ajouter un PC</div>
+            <div class="card shadow-sm border-primary h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Ajouter un PC</h5>
+                </div>
                 <div class="card-body">
                     <form method="POST">
                         <div class="mb-3">
@@ -61,11 +78,17 @@
                                 <option value="Console">Console</option>
                             </select>
                         </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Prix par heure (€)</label>
+                            <input type="number" name="price_per_hour" class="form-control" placeholder="ex: 5.0" step="0.5" min="1" required>
+                        </div>
+
                         <div class="mb-3">
                             <label class="form-label">Specs (Config)</label>
                             <textarea name="specs" class="form-control" rows="3" placeholder="ex: RTX 4070, i7..."></textarea>
                         </div>
-                        <button type="submit" class="btn btn-success w-100">➕ Créer</button>
+                        <button type="submit" class="btn btn-success w-100 fw-bold">➕ Créer la machine</button>
                     </form>
                 </div>
             </div>

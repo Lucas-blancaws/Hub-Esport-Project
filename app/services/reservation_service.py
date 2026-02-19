@@ -2,6 +2,7 @@ from datetime import datetime
 from app.models import Reservation
 from app import db
 from datetime import timedelta
+from app.models import Station
 
 
 def parse_dates(start_str, end_str):
@@ -10,11 +11,17 @@ def parse_dates(start_str, end_str):
     end = datetime.fromisoformat(end_str)
     return start, end
 
-def calculate_price(start_time, end_time):
-    """Calcule le prix total en centimes"""
-    duration_hours = (end_time - start_time).total_seconds() / 3600
-    total_amount = int(duration_hours * 500) # 5€ par heure
-    return total_amount, duration_hours
+def calculate_price(start, end, station_id):
+        # 1. On calcule la durée en heures
+        duration_hours = (end - start).total_seconds() / 3600
+        
+        # 2. On récupère la station dans la base de données
+        station = Station.query.get(station_id)
+        
+        # 3. On calcule le prix (Prix du PC * Durée * 100 pour convertir en centimes pour Stripe)
+        amount = int(station.price_per_hour * 100 * duration_hours)
+        
+        return amount, duration_hours
 
 def check_availability(station_id, start_time, end_time):
     """Vérifie s'il y a un conflit dans la base de données"""

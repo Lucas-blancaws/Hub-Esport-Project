@@ -20,7 +20,10 @@
                         {% endif %}
                     </div>
                     
-                    <p class="text-muted small">{{ station.type }}</p>
+                    <p class="text-muted small">
+                        {{ station.type }} • 
+                        <strong style="color: var(--neon-purple); font-size: 1.1em;">{{ station.price_per_hour }}€ / heure</strong>
+                    </p>
                     <p class="card-text">{{ station.specs }}</p>
                     
                     <hr>

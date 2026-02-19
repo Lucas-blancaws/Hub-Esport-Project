@@ -4,43 +4,50 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hub Esport Bordeaux</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
 
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
         <div class="container">
-            <a class="navbar-brand" href="{{ url_for('main.index') }}">🎮 Hub Esport</a>
+            <a class="navbar-brand fw-bold" href="{{ url_for('main.index') }}">
+                <span style="color: var(--neon-purple);">🎮 Hub</span> Esport
+            </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav ms-auto align-items-center">
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('main.stations') }}">🖥️ Nos Postes</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('main.booking') }}">📅 Planning</a>
                     </li>
+                    
                     {% if current_user.is_authenticated %}
-                        <li class="nav-item">
-                            <span class="nav-link text-warning">👤 {{ current_user.username }}</span>
+                        <li class="nav-item ms-lg-3">
+                            <span class="nav-link text-white opacity-75">👤 {{ current_user.username }}</span>
                         </li>
                         {% if current_user.role == 'admin' %}
                         <li class="nav-item">
                             <a class="nav-link text-danger fw-bold" href="{{ url_for('main.admin_panel') }}">🛠️ Admin</a>
                         </li>
-                    {% endif %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('auth.logout') }}">Déconnexion</a>
+                        {% endif %}
+                        <li class="nav-item ms-lg-2">
+                            <a class="btn btn-sm btn-outline-light rounded-pill px-3" href="{{ url_for('auth.logout') }}">Déconnexion</a>
                         </li>
                     {% else %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('auth.register') }}">Inscription</a>
-                        </li>
-                        <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('auth.login') }}">Connexion</a>
+                        </li>
+                        <li class="nav-item ms-lg-2">
+                            <a class="btn btn-sm btn-primary rounded-pill px-3" href="{{ url_for('auth.register') }}">Inscription</a>
                         </li>
                     {% endif %}
                 </ul>
@@ -48,22 +55,29 @@
         </div>
     </nav>
 
-    <div class="container mt-3">
+    <div class="container mt-4">
         {% with messages = get_flashed_messages() %}
             {% if messages %}
                 {% for message in messages %}
-                    <div class="alert alert-info" role="alert">{{ message }}</div>
+                    <div class="alert alert-dismissible fade show" style="background-color: var(--bg-card); border: 1px solid var(--neon-purple); color: var(--text-main);" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
                 {% endfor %}
             {% endif %}
         {% endwith %}
     </div>
 
-    {% block content %}{% endblock %}
-    <footer class="bg-dark text-white text-center py-3 mt-5">
+    <main style="min-height: 80vh;">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="text-center py-4 mt-5" style="border-top: 1px solid var(--border-subtle); background-color: var(--bg-dark);">
         <div class="container">
-            <small>&copy; 2026 Hub Esport Bordeaux.</small>
+            <small class="text-muted">&copy; 2026 Hub Esport Bordeaux. Tous droits réservés.</small>
         </div>
     </footer>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

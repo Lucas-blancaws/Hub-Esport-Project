@@ -1,195 +1,206 @@
-/* app/static/css/style.css */
+/* =========================================
+   1. VARIABLES THEME ESPORT (Le secret des Pros)
+   ========================================= */
+   :root {
+    --bg-dark: #0a0a0f;         /* Fond principal très profond */
+    --bg-card: #14141e;         /* Fond des cartes légèrement plus clair */
+    --border-subtle: #2a2a35;   /* Bordures discrètes */
+    
+    --neon-purple: #8b5cf6;     /* Violet électrique moderne */
+    --neon-blue: #3b82f6;       /* Bleu esport */
+    
+    --text-main: #f8fafc;       /* Blanc cassé très lisible */
+    --text-muted: #94a3b8;      /* Gris bleuté élégant */
+}
+
+/* =========================================
+   2. FOND & TYPOGRAPHIE GLOBALE
+   ========================================= */
 body {
-    background-color: #121212;
-    color: #e0e0e0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    /* On utilise une police moderne (pense à l'ajouter dans ton HTML) */
+    font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.6;
 }
-/* ... (Colle tout le reste du code CSS ici) ... */
-.navbar {
-    background: linear-gradient(90deg, #1a1a1a 0%, #2d2d2d 100%) !important;
-    border-bottom: 2px solid #6f42c1;
-}
-.card {
-    background-color: #1e1e1e;
-    border: 1px solid #333;
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-.card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 0 15px rgba(111, 66, 193, 0.4);
-    border-color: #6f42c1;
-}
-.card-title { color: #fff; font-weight: bold; }
-.text-muted { color: #aaaaaa !important; }
-.btn-primary {
-    background: linear-gradient(45deg, #6f42c1, #0d6efd);
-    border: none;
-    font-weight: bold;
-}
-.btn-primary:hover {
-    background: linear-gradient(45deg, #5a32a3, #0b5ed7);
-    box-shadow: 0 0 10px rgba(13, 110, 253, 0.5);
-}
-.modal-content {
-    background-color: #1e1e1e;
-    border: 1px solid #444;
-    color: #fff;
-}
-.modal-header { border-bottom: 1px solid #333; }
-.modal-footer { border-top: 1px solid #333; }
-.btn-close { filter: invert(1); }
-.form-control, .form-select {
-    background-color: #2d2d2d;
-    border: 1px solid #444;
-    color: #fff;
-}
-.form-control:focus, .form-select:focus {
-    background-color: #333;
-    color: #fff;
-    border-color: #6f42c1;
-    box-shadow: 0 0 5px rgba(111, 66, 193, 0.5);
-}
-/* =========================================
-   PATCH DARK MODE : GLOBAL & TEXTES
-   ========================================= */
 
-/* Forcer les titres en blanc */
-h1, h2, h3, h4, h5, h6 {
+h1, h2, h3, h4, h5, h6, .card-title {
     color: #ffffff !important;
+    font-weight: 700;
+    letter-spacing: -0.5px;
 }
 
-/* Forcer les liens à être visibles (Violet clair) */
+p, small, span, .text-muted, .card-text {
+    color: var(--text-muted) !important;
+}
+
 a {
-    color: #a57cc4;
+    color: var(--neon-purple);
     text-decoration: none;
-}
-a:hover {
-    color: #d6b3ff;
+    transition: color 0.3s ease;
 }
 
-/* Réparer les Tableaux (Admin panel) qui sont souvent illisibles */
-.table {
-    color: #e0e0e0 !important;
-    border-color: #444;
-}
-.table thead th {
-    color: #fff;
-    border-bottom: 2px solid #6f42c1;
-}
-.table td, .table th {
-    background-color: transparent !important; /* Enlève le fond blanc par défaut */
-    border-color: #333;
+a:hover {
+    color: #a78bfa;
 }
 
 /* =========================================
-   FULLCALENDAR : STYLE CYBERPUNK
+   3. NAVIGATION (Effet Glassmorphism)
    ========================================= */
-
-/* Couleur du texte général dans le calendrier */
-.fc {
-    color: #e0e0e0 !important;
+.navbar {
+    background: rgba(10, 10, 15, 0.8) !important;
+    backdrop-filter: blur(12px); /* Effet verre dépoli */
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border-subtle);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
 }
 
-/* En-têtes des jours (Lun, Mar...) et des heures */
+/* =========================================
+   4. COMPOSANTS : CARTES (Fluides et organiques)
+   ========================================= */
+.card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px; /* Bords plus arrondis */
+    overflow: hidden;
+    /* La transition "cubic-bezier" donne un effet élastique très pro */
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.card:hover {
+    transform: translateY(-8px) scale(1.01);
+    box-shadow: 0 15px 30px rgba(139, 92, 246, 0.15); /* Ombre violette douce */
+    border-color: var(--neon-purple);
+}
+
+/* =========================================
+   5. COMPOSANTS : BOUTONS NÉON
+   ========================================= */
+.btn-primary {
+    background: linear-gradient(135deg, var(--neon-purple), var(--neon-blue));
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    padding: 10px 24px;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #7c3aed, #2563eb);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(139, 92, 246, 0.5); /* Le bouton "brille" plus fort */
+}
+
+/* =========================================
+   6. FORMULAIRES & MODALES
+   ========================================= */
+.modal-content {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+}
+
+.modal-header { border-bottom: 1px solid var(--border-subtle); }
+.modal-footer { border-top: 1px solid var(--border-subtle); }
+.btn-close { filter: invert(1) opacity(0.7); }
+.btn-close:hover { filter: invert(1) opacity(1); }
+
+label, .form-label {
+    color: var(--text-main) !important;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.form-control, .form-select, input, textarea {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid var(--border-subtle) !important;
+    color: #ffffff !important;
+    border-radius: 8px;
+    padding: 10px 15px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+    border-color: var(--neon-purple) !important;
+    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15) !important; /* Ring de focus doux */
+}
+
+::placeholder {
+    color: #64748b !important;
+}
+
+/* =========================================
+   7. TABLEAUX (Panel Admin propre)
+   ========================================= */
+.table {
+    color: var(--text-main) !important;
+    border-color: var(--border-subtle);
+}
+
+.table thead th {
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.03) !important;
+    border-bottom: 2px solid var(--neon-purple);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+}
+
+.table td, .table th {
+    background-color: transparent !important;
+    border-color: var(--border-subtle);
+    vertical-align: middle;
+}
+
+/* =========================================
+   8. FULLCALENDAR (Intégration parfaite)
+   ========================================= */
+.fc { color: var(--text-main) !important; }
+
 .fc-col-header-cell-cushion, 
 .fc-timegrid-slot-label-cushion {
     color: #ffffff !important;
-    text-decoration: none !important; /* Enlève le soulignement moche */
-}
-
-/* Grille et bordures (Gris foncé au lieu de gris clair) */
-.fc-theme-standard td, 
-.fc-theme-standard th,
-.fc-theme-standard .fc-scrollgrid {
-    border-color: #333 !important;
-}
-
-/* Case "Aujourd'hui" (Jaune moche par défaut -> Violet transparent) */
-.fc .fc-timegrid-col.fc-day-today {
-    background-color: rgba(111, 66, 193, 0.15) !important;
-}
-
-/* Boutons du calendrier (Mois, Semaine, Précédent...) */
-.fc-button-primary {
-    background-color: #2d2d2d !important;
-    border: 1px solid #6f42c1 !important;
-    color: #fff !important;
-}
-.fc-button-primary:hover {
-    background-color: #3d3d3d !important;
-}
-.fc-button-active {
-    background-color: #6f42c1 !important; /* Bouton actif en violet */
-    border-color: #fff !important;
-}
-
-/* Événements (Les blocs rouges/verts) */
-.fc-event {
-    border: none !important;
-    border-radius: 4px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.5);
-    padding: 2px;
-}
-/* =========================================
-   PATCH VISIBILITÉ (FORMULAIRES & TEXTES)
-   ========================================= */
-
-/* 1. Rendre visibles les titres des champs (Nom, Email, etc.) */
-label, .form-label {
-    color: #e0e0e0 !important; /* Gris très clair */
     font-weight: 500;
 }
 
-/* 2. Rendre visibles les textes "grisés" (Specs des PC, petits textes) */
-.text-muted {
-    color: #b0b0b0 !important; /* On remplace le gris foncé par un gris clair */
+.fc-theme-standard td, 
+.fc-theme-standard th,
+.fc-theme-standard .fc-scrollgrid {
+    border-color: var(--border-subtle) !important;
 }
 
-/* 3. Rendre visibles les textes d'exemple dans les cases (Placeholders) */
-::placeholder {
-    color: #888888 !important;
-    opacity: 1; /* Nécessaire pour Firefox */
+.fc .fc-timegrid-col.fc-day-today {
+    background-color: rgba(139, 92, 246, 0.05) !important; /* Très subtil */
 }
 
-/* 4. Forcer la couleur du texte dans les inputs (quand tu écris) */
-input, textarea, select {
+.fc-button-primary {
+    background-color: var(--bg-card) !important;
+    border: 1px solid var(--border-subtle) !important;
+    color: var(--text-main) !important;
+    transition: all 0.2s ease;
+}
+
+.fc-button-primary:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border-color: var(--text-muted) !important;
+}
+
+.fc-button-active {
+    background-color: var(--neon-purple) !important;
+    border-color: var(--neon-purple) !important;
     color: #ffffff !important;
-    background-color: #2d2d2d !important;
-    border-color: #444 !important;
 }
 
-/* 5. Nettoyer les tableaux (Admin) */
-th, td {
-    color: #e0e0e0 !important;
-}
-
-/* 6. Titres de cartes (PC-Ultra-01...) */
-.card-title, h1, h2, h3, h5 {
-    color: #ffffff !important;
-}
-/* =========================================
-   PATCH ULTIME : SPECS & TEXTES LOGIN
-   ========================================= */
-
-/* 1. Rendre les specs des PC visibles (Le texte dans les cartes) */
-.card-text {
-    color: #d1d1d1 !important; /* Gris clair presque blanc */
-}
-
-/* 2. Rendre visibles TOUS les paragraphes et petits textes par défaut */
-p, small, span {
-    color: #e0e0e0;
-}
-
-/* 3. Spécifique pour "Déjà un compte ?" sur la page de connexion */
-.text-center {
-    color: #e0e0e0 !important;
-}
-
-/* 4. Si le texte est dans un lien, on s'assure qu'il est coloré */
-a {
-    color: #a57cc4; /* Violet clair pour les liens */
-}
-a:hover {
-    color: #ffffff; /* Blanc au survol */
+.fc-event {
+    background: linear-gradient(135deg, var(--neon-purple), var(--neon-blue)) !important;
+    border: none !important;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    font-weight: 600;
+    padding: 3px;
 }

@@ -33,7 +33,8 @@ class Station(db.Model):
     type = db.Column(db.String(64)) # Elite, Console, Standard
     status = db.Column(db.String(20), default='available')
     specs = db.Column(db.Text)
-    
+    price_per_hour = db.Column(db.Float, default=5.0)
+
     def __repr__(self):
         return f'<Station {self.name}>'
 

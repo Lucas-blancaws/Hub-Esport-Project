@@ -51,7 +51,7 @@ def reserve():
     except ValueError:
         return jsonify({'success': False, 'message': 'Dates invalides'}), 400
 
-    amount, hours = ResaService.calculate_price(start, end)
+    amount, hours = ResaService.calculate_price(start, end, data.get('station_id'))
     if amount < 50:
          return jsonify({'success': False, 'message': 'Minimum 10 minutes !'}), 400
 
@@ -110,13 +110,39 @@ def admin_panel():
         return redirect(url_for('main.index'))
 
     if request.method == 'POST':
+        # On récupère le prix (s'il est vide, on met 5.0 par défaut par sécurité)
+        price = request.form.get('price_per_hour', 5.0) 
+
         StationService.create_station(
             name=request.form['name'],
             type_pc=request.form['type'],
-            specs=request.form['specs']
+            specs=request.form['specs'],
+            price_per_hour=float(price) # 👈 On ajoute le prix ici !
         )
-        flash("Station ajoutée !")
+        flash("Station ajoutée avec succès !", "success")
         return redirect(url_for('main.admin_panel'))
 
     stations = StationService.get_all_stations()
     return render_template('main/admin.html', stations=stations)
+
+from flask import request, redirect, url_for, flash, abort
+from app.models import Station
+from app import db
+
+@bp.route('/admin/station/<int:station_id>/update_price', methods=['POST'])
+@login_required
+def update_station_price(station_id):
+    # Sécurité : on vérifie que c'est bien l'admin !
+    if current_user.role != 'admin':
+        abort(403) 
+        
+    station = Station.query.get_or_404(station_id)
+    new_price = request.form.get('price_per_hour')
+    
+    if new_price:
+        # On met à jour la base de données
+        station.price_per_hour = float(new_price)
+        db.session.commit()
+        flash(f'Le prix du poste "{station.name}" a été mis à jour à {new_price}€/h.', 'success')
+        
+    return redirect(url_for('main.admin_panel'))
