@@ -1,6 +1,8 @@
 from datetime import datetime
 from app.models import Reservation
 from app import db
+from datetime import timedelta
+
 
 def parse_dates(start_str, end_str):
     """Convertit les chaînes de caractères en objets Date"""
@@ -43,3 +45,31 @@ def get_all_reservations_dict():
     """Récupère tout pour l'API calendrier"""
     reservations = Reservation.query.all()
     return [r.to_dict() for r in reservations]
+
+def get_taken_hours(station_id, date_str):
+    """
+    Retourne la liste des heures occupées pour une station et une date donnée.
+    Exemple de retour : [10, 11, 14, 15]
+    """
+    # On définit le début et la fin de la journée (00:00 à 23:59)
+    day_start = datetime.fromisoformat(f"{date_str}T00:00:00")
+    day_end = datetime.fromisoformat(f"{date_str}T23:59:59")
+
+    # On cherche les réservations qui touchent cette journée
+    reservations = Reservation.query.filter(
+        Reservation.station_id == station_id,
+        Reservation.status != 'cancelled',
+        Reservation.end_time > day_start,
+        Reservation.start_time < day_end
+    ).all()
+
+    taken_hours = []
+
+    for resa in reservations:
+        current = resa.start_time
+        while current < resa.end_time:
+            if current.date() == day_start.date():
+                taken_hours.append(current.hour)
+            current += timedelta(hours=1)
+
+    return taken_hours

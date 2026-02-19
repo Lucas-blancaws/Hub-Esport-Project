@@ -53,6 +53,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
+                
                 <form id="bookingForm">
                     <input type="hidden" id="stationId">
                     
@@ -95,6 +96,8 @@
                         💡 Fin prévue à : <span id="endTimePreview">--:--</span>
                     </div>
 
+                    <div id="bookingError" class="alert alert-danger d-none text-center" role="alert"></div>
+
                     <button type="submit" class="btn btn-primary w-100 fw-bold">💳 Payer et Réserver</button>
                 </form>
             </div>
@@ -103,50 +106,138 @@
 </div>
 
 <script>
-    // 1. Setup du Modal
+    // Variable pour stocker les heures prises (accessible partout)
+    let globalTakenHours = [];
+
     function setStation(id, name) {
         document.getElementById('stationId').value = id;
         document.getElementById('modalStationName').innerText = name;
         
-        // Mettre la date d'aujourd'hui par défaut
         const today = new Date().toISOString().split('T')[0];
-        document.getElementById('bookingDate').value = today;
-        document.getElementById('bookingDate').min = today;
+        const dateInput = document.getElementById('bookingDate');
+        dateInput.value = today;
+        dateInput.min = today;
         
-        updateEndTime(); // Mettre à jour l'aperçu
+        fetchTakenHours(id, today);
     }
 
-    // 2. Calcul dynamique de l'heure de fin
-    function updateEndTime() {
-        const startHour = parseInt(document.getElementById('startHour').value.split(':')[0]);
+    function fetchTakenHours(stationId, dateStr) {
+        const selectStart = document.getElementById('startHour');
+        selectStart.disabled = true;
+
+        fetch(`/api/availability?station_id=${stationId}&date=${dateStr}`)
+            .then(response => response.json())
+            .then(takenHours => {
+                globalTakenHours = takenHours;
+                updateStartHourOptions();
+                updateMaxDuration();
+                
+                selectStart.disabled = false;
+            })
+            .catch(err => {
+                console.error("Erreur dispo:", err);
+                selectStart.disabled = false;
+            });
+    }
+
+    function updateStartHourOptions() {
+        const select = document.getElementById('startHour');
+        
+        for (let i = 0; i < select.options.length; i++) {
+            let option = select.options[i];
+            option.text = option.text.replace(' (Complet) ⛔️', '');
+            
+            let hour = parseInt(option.value.split(':')[0]);
+
+            if (globalTakenHours.includes(hour)) {
+                option.disabled = true;
+                option.text += ' (Complet) ⛔️';
+            } else {
+                option.disabled = false;
+            }
+        }
+    }
+
+    function updateMaxDuration() {
+        const startHourVal = document.getElementById('startHour').value;
+        const durationSelect = document.getElementById('duration');
+        
+        if (!startHourVal) return;
+
+        const startHour = parseInt(startHourVal.split(':')[0]);
+        
+        let nextBooking = 24; // Par défaut, fin de journée (minuit)
+        
+        globalTakenHours.sort((a, b) => a - b);
+        
+        for (let taken of globalTakenHours) {
+            if (taken > startHour) {
+                nextBooking = taken;
+                break;
+            }
+        }
+
+        //12h - 10h = 2h max
+        const maxDuration = nextBooking - startHour;
+
+        for (let option of durationSelect.options) {
+            const durationVal = parseInt(option.value);
+            
+            if (durationVal > maxDuration) {
+                option.disabled = true;
+                if (!option.text.includes('⛔️')) option.text += ' (Trop long) ⛔️';
+            } else {
+                option.disabled = false;
+                option.text = option.text.replace(' (Trop long) ⛔️', '');
+            }
+        }
+        if (parseInt(durationSelect.value) > maxDuration) {
+            durationSelect.value = "1";
+        }
+
+        updateEndTimePreview();
+    }
+
+    function updateEndTimePreview() {
+        const startHourVal = document.getElementById('startHour').value;
+        if (!startHourVal) return;
+        
+        const startHour = parseInt(startHourVal.split(':')[0]);
         const duration = parseInt(document.getElementById('duration').value);
-        const endHour = startHour + duration;
-        document.getElementById('endTimePreview').innerText = endHour + "h00";
+        
+        document.getElementById('endTimePreview').innerText = (startHour + duration) + "h00";
     }
 
-    // Écouteurs pour mettre à jour l'heure
-    document.getElementById('startHour').addEventListener('change', updateEndTime);
-    document.getElementById('duration').addEventListener('change', updateEndTime);
+    // Écouteurs d'événements
+    document.getElementById('bookingDate').addEventListener('change', function() {
+        const stationId = document.getElementById('stationId').value;
+        const newDate = this.value; 
+        fetchTakenHours(stationId, newDate);
+    });
 
-    // 3. L'ENVOI VERS STRIPE 🚀
+    document.getElementById('startHour').addEventListener('change', function() {
+        updateMaxDuration(); //Quand je change l'heure, je recalcule la durée max
+    });
+
+    document.getElementById('duration').addEventListener('change', updateEndTimePreview);
+
     document.getElementById('bookingForm').addEventListener('submit', function(e) {
         e.preventDefault();
 
-        // A. On change le bouton pour dire "Patientez..." (UX)
         const btn = document.querySelector('button[type="submit"]');
-        const originalText = btn.innerText;
-        btn.innerText = "🔄 Redirection Stripe...";
+        const errorDiv = document.getElementById('bookingError');
+        const originalText = "💳 Payer et Réserver";
+
+        errorDiv.classList.add('d-none');
+        btn.innerText = "🔄 Vérification...";
         btn.disabled = true;
 
-        // B. Préparation des données
         const date = document.getElementById('bookingDate').value;
         const time = document.getElementById('startHour').value;
         const duration = parseInt(document.getElementById('duration').value);
         
-        // Création de la date de début ISO
         const startDateTime = `${date}T${time}`;
         
-        // Calcul date de fin
         let endDateObj = new Date(startDateTime);
         endDateObj.setHours(endDateObj.getHours() + duration);
         
@@ -162,7 +253,6 @@
             end: endDateTime
         };
 
-        // C. Envoi au serveur
         fetch('/reserve', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -170,22 +260,21 @@
         })
         .then(response => response.json())
         .then(data => {
-            // 👉 C'EST ICI QUE ÇA CHANGE
             if (data.success && data.checkout_url) {
-                // Redirection vers le paiement Stripe
                 window.location.href = data.checkout_url;
             } else {
-                // Erreur
-                alert("⚠️ Erreur : " + (data.message || "Problème inconnu"));
+                errorDiv.innerText = "⚠️ " + (data.message || "Erreur");
+                errorDiv.classList.remove('d-none');
                 btn.innerText = originalText;
                 btn.disabled = false;
             }
         })
         .catch(error => {
-            console.error('Erreur:', error);
-            alert("Erreur technique.");
-            btn.innerText = originalText;
+            console.error(error);
+            errorDiv.innerText = "❌ Erreur technique";
+            errorDiv.classList.remove('d-none');
             btn.disabled = false;
+            btn.innerText = originalText;
         });
     });
 </script>

@@ -27,6 +27,19 @@ def get_reservations():
     events = ResaService.get_all_reservations_dict()
     return jsonify(events)
 
+@bp.route('/api/availability')
+def check_availability():
+    station_id = request.args.get('station_id')
+    date_str = request.args.get('date')
+    
+    if not station_id or not date_str:
+        return jsonify([])
+
+    # On demande au Service
+    taken_hours = ResaService.get_taken_hours(station_id, date_str)
+    
+    return jsonify(taken_hours)
+
 # --- LOGIQUE DE COMMANDE ---
 @bp.route('/reserve', methods=['POST'])
 @login_required
