@@ -14,7 +14,9 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(256))
     role = db.Column(db.String(20), default='user')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
+    phone = db.Column(db.String(20))
+    favorite_games = db.Column(db.Text, default='[]')
+    
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 

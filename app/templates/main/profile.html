@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card bg-dark border-primary shadow-lg">
+                <div class="card-header border-primary text-white">
+                    <h3 class="m-0">👤 Mon Profil Hub Esport</h3>
+                </div>
+                <div class="card-body text-white">
+                    <form method="POST">
+                        
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label opacity-75">Nom d'utilisateur</label>
+                                <input type="text" class="form-control bg-black text-white border-secondary" value="{{ current_user.username }}" disabled>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label opacity-75">Email</label>
+                                <input type="email" class="form-control bg-black text-white border-secondary" value="{{ current_user.email }}" disabled>
+                            </div>
+                        </div>
+
+                        <hr class="border-secondary my-4">
+
+                        <div class="mb-4">
+                            <label class="form-label">📱 Numéro de téléphone</label>
+                            <input type="text" name="phone" class="form-control bg-dark text-white border-secondary" value="{{ current_user.phone or '' }}" placeholder="06 00 00 00 00">
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label d-block text-primary fw-bold mb-3">🎮 Mes Jeux Favoris</label>
+                            
+                            <div class="row g-3">
+                                {% set available_games = ['League of Legends', 'Valorant', 'Counter-Strike 2', 'Rocket League', 'Fortnite', 'Apex Legends'] %}
+                                
+                                {% for game in available_games %}
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="favorite_games" 
+                                               value="{{ game }}" id="game-{{ loop.index }}"
+                                               {% if game in user_games %}checked{% endif %}>
+                                        <label class="form-check-label text-white" for="game-{{ loop.index }}">
+                                            {{ game }}
+                                        </label>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            
+                            <small class="text-muted mt-3 d-block">Vous recevrez des notifications pour chacun de ces jeux.</small>
+                        </div>
+
+                        <hr class="border-secondary my-4">
+
+                        <div class="mb-3">
+                            <label class="form-label">🔒 Nouveau mot de passe</label>
+                            <input type="password" name="new_password" class="form-control bg-dark text-white border-secondary" placeholder="Laissez vide pour ne pas changer">
+                        </div>
+
+                        <div class="d-grid gap-2 mt-5">
+                            <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -9,6 +9,8 @@ from app.services import email_service as EmailService
 import cloudinary.uploader
 from sqlalchemy import func
 from app.models import Reservation, User, Station
+from werkzeug.security import generate_password_hash
+import json
 
 # --- PAGES VUES ---
 @bp.route('/')
@@ -248,3 +250,30 @@ def admin_dashboard():
     except Exception as e:
         print(f"❌ ERREUR DASHBOARD : {e}")
         return f"Erreur lors du calcul des stats : {e}", 500
+
+@bp.route('/profile', methods=['GET', 'POST'])
+@login_required
+def profile():
+    if request.method == 'POST':
+        current_user.phone = request.form.get('phone')
+        
+        # On récupère TOUS les jeux cochés (getlist)
+        selected_games = request.form.getlist('favorite_games')
+        current_user.favorite_games = json.dumps(selected_games) # On enregistre en JSON
+        
+        # Gestion mot de passe...
+        new_password = request.form.get('new_password')
+        if new_password:
+            current_user.password_hash = generate_password_hash(new_password)
+            
+        db.session.commit()
+        flash('Profil mis à jour !', 'success')
+        return redirect(url_for('main.profile'))
+    
+    # On décode le JSON pour l'envoyer au template (ou liste vide si erreur)
+    try:
+        user_games = json.loads(current_user.favorite_games or '[]')
+    except:
+        user_games = []
+        
+    return render_template('main/profile.html', user_games=user_games)

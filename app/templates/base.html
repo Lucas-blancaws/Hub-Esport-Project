@@ -32,7 +32,7 @@
                     
                     {% if current_user.is_authenticated %}
                         <li class="nav-item ms-lg-3">
-                            <span class="nav-link text-white opacity-75">👤 {{ current_user.username }}</span>
+                            <a class="nav-link text-white opacity-75" href="{{ url_for('main.profile') }}">👤 {{ current_user.username }}</a>
                         </li>
                         {% if current_user.role == 'admin' %}
                         <li class="nav-item">
