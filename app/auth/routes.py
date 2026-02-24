@@ -3,6 +3,7 @@ from flask_login import login_user, logout_user, current_user, login_required
 from app import db
 from app.auth import bp
 from app.models import User
+from flask_login import login_user
 
 @bp.route('/register', methods=['GET', 'POST'])
 def register():
@@ -29,8 +30,10 @@ def register():
         db.session.add(new_user)
         db.session.commit()
 
-        flash('Votre compte est créé ! Connectez-vous maintenant.')
-        return redirect(url_for('auth.login'))
+        login_user(new_user)
+
+        flash('Compte créé avec succès ! Bienvenue dans l\'Arène.')
+        return redirect(url_for('main.index'))
 
     return render_template('auth/register.html')
 

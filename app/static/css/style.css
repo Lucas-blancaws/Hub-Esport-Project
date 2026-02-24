@@ -134,12 +134,75 @@ label, .form-label {
 ::placeholder {
     color: #64748b !important;
 }
+/* =========================================
+   FIX DROPDOWN/SELECT (Windows Chrome)
+   ========================================= */
 
-input[type="date"],
-input[type="time"],
-input[type="datetime-local"] {
-    background-color: var(--bg-card) !important;
-    color: var(--text-main) !important;
+/* Forcer le style des options dans les dropdowns */
+.form-select option {
+    background-color: #14141e !important; /* Fond sombre solide */
+    color: #ffffff !important; /* Texte blanc */
+    padding: 10px;
+}
+
+/* Style spécifique pour les options désactivées (Complet) */
+.form-select option:disabled {
+    color: #64748b !important; /* Gris pour les options désactivées */
+    background-color: #0a0a0f !important;
+}
+
+/* Assurer que le dropdown ouvert a un bon contraste */
+.form-select:focus option:checked,
+.form-select option:hover {
+    background-color: var(--neon-purple) !important;
+    color: #ffffff !important;
+}
+
+/* Fix pour le menu déroulant natif Windows */
+select option {
+    background-color: #14141e !important;
+    color: #ffffff !important;
+}
+
+select option:disabled {
+    color: #64748b !important;
+}
+
+/* =========================================
+   FIX FINAL SÉLECTEURS HEURE (Windows/Chrome)
+   ========================================= */
+
+/* 1. On donne un fond SOLIDE et sombre à l'input pour éviter le blanc par défaut */
+input[type="time"], 
+input[type="date"] {
+    background-color: #14141e !important; /* Un gris très foncé solide */
+    color: #ffffff !important;
+    color-scheme: dark !important;
+    border: 1px solid var(--border-subtle) !important;
+}
+
+/* 2. On force TOUS les composants internes à être blancs et visibles immédiatement */
+input[type="time"]::-webkit-datetime-edit-fields-wrapper,
+input[type="time"]::-webkit-datetime-edit-hour-field,
+input[type="time"]::-webkit-datetime-edit-minute-field,
+input[type="time"]::-webkit-datetime-edit-text,
+input[type="time"]::-webkit-datetime-edit-ampm-field {
+    color: #ffffff !important;
+    background-color: transparent !important;
+    opacity: 1 !important; /* Empêche le masquage automatique de Windows */
+}
+
+/* 3. On s'assure que le texte ne devient pas noir quand on clique dessus */
+input[type="time"]:focus::-webkit-datetime-edit-hour-field,
+input[type="time"]:focus::-webkit-datetime-edit-minute-field {
+    background-color: var(--neon-purple) !important;
+    color: #ffffff !important;
+}
+
+/* 4. On force l'icône de l'horloge en blanc */
+input[type="time"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    opacity: 0.8;
 }
 
 /* =========================================

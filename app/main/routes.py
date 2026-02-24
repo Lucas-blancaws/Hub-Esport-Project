@@ -12,6 +12,7 @@ from app.models import Reservation, User, Station
 from werkzeug.security import generate_password_hash
 import json
 
+
 # --- PAGES VUES ---
 @bp.route('/')
 def index():
