@@ -7,6 +7,8 @@ from app.services import station_service as StationService
 from app.services import payment_service as PaymentService
 from app.services import email_service as EmailService
 import cloudinary.uploader
+from sqlalchemy import func
+from app.models import Reservation, User, Station
 
 # --- PAGES VUES ---
 @bp.route('/')
@@ -200,3 +202,49 @@ def edit_station(station_id):
     db.session.commit()
     flash(f"Poste '{station.name}' mis à jour avec succès !", "success")
     return redirect(url_for('main.admin_panel'))
+
+@bp.route('/admin/dashboard')
+@login_required
+def admin_dashboard():
+    if current_user.role != 'admin':
+        abort(403)
+
+    try:
+        # 1. Chiffre d'Affaires
+        total_revenue_cents = db.session.query(func.sum(Reservation.amount)).filter(Reservation.status == 'paid').scalar()
+        revenue_euro = (total_revenue_cents / 100) if total_revenue_cents else 0
+
+        # 2. Nombre de réservations
+        total_resas = Reservation.query.filter(Reservation.status == 'paid').count()
+        
+        # 3. Données graphique
+        hourly_data = [0] * 24
+        paid_reservations = Reservation.query.filter(Reservation.status == 'paid').all()
+        for r in paid_reservations:
+            hourly_data[r.start_time.hour] += 1
+
+        # 4. Préparation de la liste pour le tableau (On ajoute manuellement le nom du client)
+        recent_resas = Reservation.query.filter(Reservation.status == 'paid')\
+            .order_by(Reservation.start_time.desc()).limit(10).all()
+        
+        # On crée une liste de dictionnaires pour que le HTML ait tout ce qu'il faut
+        display_resas = []
+        for res in recent_resas:
+            # On va chercher l'utilisateur manuellement avec son ID
+            u = User.query.get(res.user_id)
+            display_resas.append({
+                'start_time': res.start_time,
+                'username': u.username if u else f"Client #{res.user_id}",
+                'station_name': res.station.name if res.station else f"Poste #{res.station_id}",
+                'amount': res.amount / 100
+            })
+
+        return render_template('main/dashboard.html', 
+                               revenue=revenue_euro, 
+                               count=total_resas,
+                               hourly_data=hourly_data,
+                               reservations=display_resas) # On envoie la nouvelle liste
+                               
+    except Exception as e:
+        print(f"❌ ERREUR DASHBOARD : {e}")
+        return f"Erreur lors du calcul des stats : {e}", 500

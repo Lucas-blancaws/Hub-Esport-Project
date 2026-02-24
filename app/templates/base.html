@@ -36,6 +36,9 @@
                         </li>
                         {% if current_user.role == 'admin' %}
                         <li class="nav-item">
+                            <a class="nav-link text-info fw-bold" href="{{ url_for('main.admin_dashboard') }}">📊 Stats</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link text-danger fw-bold" href="{{ url_for('main.admin_panel') }}">🛠️ Admin</a>
                         </li>
                         {% endif %}

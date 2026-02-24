@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-white m-0">📊 Analytics & Performance</h2>
+        <span class="badge bg-primary">Admin Mode</span>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="card bg-dark border-primary shadow-lg p-3">
+                <div class="text-muted small text-uppercase fw-bold">Chiffre d'Affaires</div>
+                <h2 class="text-primary mt-2">{{ "{:,.2f}".format(revenue) }} €</h2>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-dark border-success shadow-lg p-3">
+                <div class="text-muted small text-uppercase fw-bold">Réservations Payées</div>
+                <h2 class="text-success mt-2">{{ count }}</h2>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-dark border-warning shadow-lg p-3">
+                <div class="text-muted small text-uppercase fw-bold">Panier moyen</div>
+                <h2 class="text-warning mt-2">{{ "{:,.2f}".format(revenue / count if count > 0 else 0) }} €</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="card bg-dark border-secondary h-100 shadow">
+                <div class="card-header border-secondary text-white fw-bold">📈 Pics d'Affluence (Heures)</div>
+                <div class="card-body">
+                    <div style="height: 300px;"> <canvas id="affluenceChart" data-hourly='{{ hourly_data|tojson }}'></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card bg-dark border-secondary h-100 shadow">
+                <div class="card-header border-secondary d-flex justify-content-between align-items-center">
+                    <span class="text-white fw-bold">🕒 Activité Récente</span>
+                    <input type="text" id="searchInput" class="form-control form-control-sm w-50 bg-black text-white border-secondary" placeholder="Rechercher un client...">
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive" style="max-height: 400px;">
+                        <table class="table table-dark table-hover mb-0 small align-middle">
+                            <thead class="sticky-top bg-dark">
+                                <tr>
+                                    <th class="ps-3" style="width: 35%;">Client / Date</th>
+                                    <th style="width: 35%;">Poste</th>
+                                    <th class="pe-3 text-end" style="width: 30%;">Montant</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reservationTable">
+                                {% for res in reservations %}
+                                <tr>
+                                    <td class="ps-3">
+                                        <div class="fw-bold text-info">{{ res.username }}</div>
+                                        <div class="text-muted" style="font-size: 0.85em;">{{ res.start_time.strftime('%d/%m %H:%M') }}</div>
+                                    </td>
+                                    <td><span class="badge bg-secondary">{{ res.station_name }}</span></td>
+                                    <td class="pe-3 text-end text-success fw-bold">{{ res.amount }} €</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const chartElement = document.getElementById('affluenceChart');
+        if (!chartElement) return;
+    
+        // Récupération et Debugging
+        const rawData = chartElement.getAttribute('data-hourly');
+        console.log("Données reçues de Python :", rawData); // Fais F12 dans Chrome pour voir ça
+        
+        let chartData;
+        try {
+            chartData = JSON.parse(rawData);
+        } catch (e) {
+            console.error("Erreur de lecture des données :", e);
+            chartData = new Array(24).fill(0);
+        }
+    
+        const ctx = chartElement.getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: Array.from({length: 24}, (_, i) => i + "h"),
+                datasets: [{
+                    label: 'Réservations',
+                    data: chartData,
+                    borderColor: '#8b5cf6',
+                    backgroundColor: 'rgba(139, 92, 246, 0.2)',
+                    fill: true,
+                    tension: 0.4,
+                    borderWidth: 3,
+                    pointRadius: 5,
+                    pointBackgroundColor: '#8b5cf6'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { 
+                    legend: { display: false },
+                    tooltip: { backgroundColor: '#1e1e1e' }
+                },
+                scales: {
+                    y: { 
+                        beginAtZero: true, 
+                        grid: { color: '#333' }, 
+                        ticks: { color: '#999', stepSize: 1 } 
+                    },
+                    x: { 
+                        grid: { display: false },
+                        ticks: { color: '#999' }
+                    }
+                }
+            }
+        });
+    
+        // Moteur de recherche (on le remet ici pour être sûr qu'il charge)
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.addEventListener('keyup', function() {
+                const value = this.value.toLowerCase();
+                document.querySelectorAll('#reservationTable tr').forEach(row => {
+                    const text = row.innerText.toLowerCase();
+                    row.style.display = text.includes(value) ? "" : "none";
+                });
+            });
+        }
+    });
+    </script>
+{% endblock %}
