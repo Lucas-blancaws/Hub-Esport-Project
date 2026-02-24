@@ -1,87 +1,11 @@
 {% extends "base.html" %}
 
 {% block content %}
-<style>
-    /* Activer le défilement fluide (Smooth Scroll) pour toute la page */
-    html { scroll-behavior: smooth; }
 
-    /* 1. HERO SECTION (La grande bannière) */
-    .hero-section {
-        /* Image de fond assombrie pour que le texte soit lisible */
-        background: linear-gradient(rgba(10, 10, 15, 0.7), rgba(10, 10, 15, 0.9)), 
-                    url('https://source.unsplash.com/1600x900/?esport,cyberpunk,neon') no-repeat center center;
-        background-size: cover;
-        height: 85vh; /* Prend 85% de la hauteur de l'écran */
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
-        margin-top: -1.5rem; /* Remonte sous la navbar transparente */
-        position: relative;
-    }
-
-    .hero-title {
-        font-size: 4rem;
-        font-weight: 800;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        background: linear-gradient(135deg, #ffffff, var(--neon-purple));
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
-        margin-bottom: 1rem;
-    }
-
-    /* 2. ANIMATION FLÈCHE QUI REBONDIT */
-    .scroll-down {
-        position: absolute;
-        bottom: 30px;
-        color: #fff;
-        font-size: 2rem;
-        animation: bounce 2s infinite;
-        text-decoration: none;
-    }
+<div class="hero-section" style="background-image: linear-gradient(rgba(10, 10, 15, 0.7), rgba(10, 10, 15, 0.9)), url('/static/img/hero-bg.jpg');">
     
-    .scroll-down:hover { color: var(--neon-purple); }
-
-    @keyframes bounce {
-        0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-        40% { transform: translateY(-20px); }
-        60% { transform: translateY(-10px); }
-    }
-
-    /* 3. SECTION ABOUT & TARIFS */
-    .section-title {
-        font-weight: 700;
-        color: #fff;
-        margin-bottom: 3rem;
-        text-align: center;
-        position: relative;
-    }
-    
-    /* Petite ligne violette sous les titres */
-    .section-title::after {
-        content: '';
-        width: 60px;
-        height: 4px;
-        background-color: var(--neon-purple);
-        display: block;
-        margin: 15px auto 0;
-        border-radius: 2px;
-    }
-    
-    .price-tag {
-        font-size: 2.5rem;
-        font-weight: 800;
-        color: var(--neon-blue);
-    }
-</style>
-
-<div class="hero-section">
-    <div class="container fade-in">
-        <h1 class="hero-title">L'Arène Ultime à Bordeaux</h1>
-        <p class="lead text-white mb-5 fs-4" style="max-width: 700px; margin: 0 auto;">
+    <div class="container fade-in text-center"> <h1 class="hero-title">L'Arène Ultime à Bordeaux</h1>
+        <p class="lead text-white mb-5 fs-4 mx-auto" style="max-width: 700px;">
             Des setups de compétition, une connexion fibre dédiée, et l'ambiance des plus grands tournois. Prêt à entrer dans la légende ?
         </p>
         <a href="{{ url_for('main.stations') }}" class="btn btn-primary btn-lg rounded-pill px-5 py-3 fs-5">
@@ -92,9 +16,8 @@
     <a href="#about" class="scroll-down">
         ⬇
     </a>
-</div>
 
-<div id="about" class="container py-5 mt-5">
+</div> <div id="about" class="container py-5 mt-5">
     <h2 class="section-title">Le Sanctuaire des Gamers</h2>
     <div class="row align-items-center">
         <div class="col-md-6 mb-4">
@@ -106,7 +29,7 @@
             </p>
         </div>
         <div class="col-md-6">
-            <img src="https://source.unsplash.com/800x500/?gaming,keyboard,rgb" class="img-fluid rounded-4 shadow-lg" style="border: 1px solid var(--border-subtle);" alt="Setup Gaming">
+            <img src="https://images.unsplash.com/photo-1593640408182-31c70c8268f5?q=80&w=800&auto=format&fit=crop" class="img-fluid rounded-4 shadow-lg" style="border: 1px solid var(--border-subtle);" alt="Setup Gaming">
         </div>
     </div>
 </div>
@@ -151,7 +74,7 @@
 
             <div class="col-md-4">
                 <div class="card h-100 text-center p-4">
-                    <h3 class="card-title text-white mb-3">Radiant (Stream)</h3>
+                    <h3 class="card-title text-white mb-3">Supremacy (Stream)</h3>
                     <p class="text-muted">La box insonorisée pour les créateurs.</p>
                     <div class="price-tag mb-4">12€ <span class="fs-5 text-muted">/ heure</span></div>
                     <ul class="list-unstyled text-start text-muted mb-4 mx-auto" style="max-width: 200px;">

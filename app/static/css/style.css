@@ -2,6 +2,8 @@
    1. VARIABLES THEME ESPORT (Le secret des Pros)
    ========================================= */
    :root {
+    color-scheme: dark;
+
     --bg-dark: #0a0a0f;         /* Fond principal très profond */
     --bg-card: #14141e;         /* Fond des cartes légèrement plus clair */
     --border-subtle: #2a2a35;   /* Bordures discrètes */
@@ -133,6 +135,13 @@ label, .form-label {
     color: #64748b !important;
 }
 
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"] {
+    background-color: var(--bg-card) !important;
+    color: var(--text-main) !important;
+}
+
 /* =========================================
    7. TABLEAUX (Panel Admin propre)
    ========================================= */
@@ -203,4 +212,97 @@ label, .form-label {
     box-shadow: 0 2px 8px rgba(0,0,0,0.4);
     font-weight: 600;
     padding: 3px;
+}
+
+
+/* =========================================
+   PAGE D'ACCUEIL (Hero Section)
+   ========================================= */
+   .hero-section {
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    
+    min-height: calc(100vh - 76px); 
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    position: relative; 
+}
+
+.hero-section .container {
+    position: relative;
+    z-index: 2;
+    padding-bottom: 60px; 
+}
+
+/* =========================================
+   LA FLÈCHE SCROLL-DOWN (Centrée et animée)
+   ========================================= */
+.scroll-down {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    /* L'astuce magique pour centrer parfaitement un élément absolu : */
+    transform: translateX(-50%); 
+    font-size: 2.5rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    animation: bounce 2s infinite; /* L'animation de rebond */
+    z-index: 10;
+}
+
+.scroll-down:hover {
+    color: var(--neon-purple);
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0) translateX(-50%); }
+    40% { transform: translateY(-15px) translateX(-50%); }
+    60% { transform: translateY(-7px) translateX(-50%); }
+}
+
+/* =========================================
+   LE TITRE PRINCIPAL
+   ========================================= */
+.hero-title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 1.5rem;
+    background: linear-gradient(135deg, #ffffff, var(--neon-purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+}
+/* =========================================
+   SECTION ABOUT & TARIFS
+   ========================================= */
+   .section-title {
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 3rem;
+    text-align: center;
+    position: relative;
+}
+
+/* Petite ligne violette sous les titres */
+.section-title::after {
+    content: '';
+    width: 60px;
+    height: 4px;
+    background-color: var(--neon-purple);
+    display: block;
+    margin: 15px auto 0;
+    border-radius: 2px;
+}
+
+.price-tag {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--neon-blue);
 }
