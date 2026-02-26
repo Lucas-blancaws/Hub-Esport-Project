@@ -4,6 +4,7 @@ from app import db
 from app.auth import bp
 from app.models import User
 from flask_login import login_user
+from app.services import email_service as EmailService
 
 @bp.route('/register', methods=['GET', 'POST'])
 def register():
@@ -67,3 +68,38 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('main.index'))
+
+@bp.route('/reset_password_request', methods=['GET', 'POST'])
+def reset_password_request():
+    if current_user.is_authenticated:
+        return redirect(url_for('main.index'))
+
+    if request.method == 'POST':
+        email = request.form['email']
+        user = User.query.filter_by(email=email).first()
+        if user:
+            EmailService.send_reset_email(user)
+            
+        flash('Si un compte est associé à cet email, les instructions ont été envoyées.', 'info')
+        return redirect(url_for('auth.login'))
+        
+    return render_template('auth/reset_password_request.html')
+
+@bp.route('/reset_password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    if current_user.is_authenticated:
+        return redirect(url_for('main.index'))
+        
+    user = User.verify_reset_token(token)
+    if not user:
+        flash('Le lien est invalide ou a expiré.', 'warning')
+        return redirect(url_for('auth.reset_password_request'))
+    
+    if request.method == 'POST':
+        new_password = request.form['password']
+        user.set_password(new_password)
+        db.session.commit()
+        flash('Ton mot de passe a été mis à jour ! Tu peux maintenant te connecter.', 'success')
+        return redirect(url_for('auth.login'))
+    
+    return render_template('auth/reset_password.html')

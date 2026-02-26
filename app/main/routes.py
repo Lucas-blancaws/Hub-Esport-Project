@@ -277,4 +277,7 @@ def profile():
     except:
         user_games = []
         
-    return render_template('main/profile.html', user_games=user_games)
+    mes_reservations = Reservation.query.filter_by(user_id=current_user.id).order_by(Reservation.start_time.desc()).all()
+        
+    # On n'oublie pas de passer 'mes_reservations' au template HTML
+    return render_template('main/profile.html', user_games=user_games, reservations=mes_reservations)

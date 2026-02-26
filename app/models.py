@@ -3,6 +3,9 @@ from app import db
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import login
+from itsdangerous import URLSafeTimedSerializer as Serializer
+from flask import current_app
+from zoneinfo import ZoneInfo
 
 # 1. TABLE UTILISATEURS
 class User(UserMixin, db.Model):
@@ -13,15 +16,28 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), index=True, unique=True, nullable=False)
     password_hash = db.Column(db.String(256))
     role = db.Column(db.String(20), default='user')
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.now)
     phone = db.Column(db.String(20))
     favorite_games = db.Column(db.Text, default='[]')
-    
+
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+    
+    def get_reset_token(self):
+        s = Serializer(current_app.config['SECRET_KEY'])
+        return s.dumps({'user_id': self.id})
+
+    @staticmethod
+    def verify_reset_token(token, expires_sec=1800): # Expire après 30 min
+        s = Serializer(current_app.config['SECRET_KEY'])
+        try:
+            user_id = s.loads(token, max_age=expires_sec)['user_id']
+        except:
+            return None
+        return User.query.get(user_id)
 
     def __repr__(self):
         return f'<User {self.username}>'
@@ -43,6 +59,9 @@ class Station(db.Model):
     def __repr__(self):
         return f'<Station {self.name}>'
 
+def heure_francaise():
+    return datetime.now(ZoneInfo("Europe/Paris"))
+
 # 3. TABLE RÉSERVATIONS (AVEC PAIEMENT STRIPE)
 class Reservation(db.Model):
     __tablename__ = 'reservations'
@@ -50,7 +69,7 @@ class Reservation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     station_id = db.Column(db.Integer, db.ForeignKey('stations.id'), nullable=False)
-    
+    created_at = db.Column(db.DateTime, default=heure_francaise)    
     start_time = db.Column(db.DateTime, nullable=False)
     end_time = db.Column(db.DateTime, nullable=False)
 
