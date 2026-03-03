@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5 text-center">
+    
+    {% if status == 'valid' %}
+        <div class="card bg-success text-white shadow-lg mx-auto" style="max-width: 500px;">
+            <div class="card-body p-5">
+                <h1 class="display-1">✅</h1>
+                <h2 class="fw-bold">BILLET VALIDE</h2>
+                <hr class="bg-light my-4">
+                <h4 class="mb-3">Joueur : {{ joueur.username if joueur else 'Inconnu' }}</h4>
+                <p class="fs-5 mb-1"><strong>Poste :</strong> {{ resa.station.name if resa.station else 'Poste supprimé' }}</p>
+                <p class="fs-5 mb-1"><strong>Horaire :</strong> {{ resa.start_time.strftime('%H:%M') }} - {{ resa.end_time.strftime('%H:%M') }}</p>
+                <p class="fs-5 mb-4"><strong>Date :</strong> {{ resa.start_time.strftime('%d/%m/%Y') }}</p>
+                
+                <form action="{{ url_for('main.consume_ticket', stripe_id=resa.stripe_session_id) }}" method="POST">
+                    <button type="submit" class="btn btn-light btn-lg w-100 fw-bold text-success shadow">
+                        👉 VALIDER L'ENTRÉE DU JOUEUR
+                    </button>
+                </form>
+            </div>
+        </div>
+
+    {% elif status == 'used' %}
+        <div class="card bg-secondary text-white shadow-lg mx-auto border border-danger border-5" style="max-width: 500px;">
+            <div class="card-body p-5">
+                <h1 class="display-1">🛑</h1>
+                <h2 class="fw-bold text-danger">DÉJÀ UTILISÉ</h2>
+                <hr class="bg-light my-4">
+                <p class="fs-5">Ce billet a <strong>déjà été scanné et validé</strong>.</p>
+                <p class="fs-6 text-light mb-1">Joueur : {{ joueur.username if joueur else 'Inconnu' }}</p>
+                <p class="fs-6 text-light">L'accès doit être refusé s'il s'agit d'une autre personne.</p>
+            </div>
+        </div>
+
+    {% elif status == 'unpaid' %}
+        <div class="card bg-warning text-dark shadow-lg mx-auto" style="max-width: 500px;">
+            <div class="card-body p-5">
+                <h1 class="display-1">⚠️</h1>
+                <h2 class="fw-bold">PAIEMENT EN ATTENTE</h2>
+                <p class="fs-5">Ce billet correspond à une réservation annulée ou non réglée.</p>
+            </div>
+        </div>
+
+    {% else %}
+        <div class="card bg-danger text-white shadow-lg mx-auto" style="max-width: 500px;">
+            <div class="card-body p-5">
+                <h1 class="display-1">❌</h1>
+                <h2 class="fw-bold">BILLET FALSIFIÉ</h2>
+                <p class="fs-5">Ce billet (QR Code ou code saisi) est introuvable.</p>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="mt-4">
+        <a href="{{ url_for('main.admin_panel') }}" class="btn btn-outline-light">Retour au panel Admin</a>
+    </div>
+</div>
+{% endblock %}

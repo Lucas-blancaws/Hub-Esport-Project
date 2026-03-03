@@ -50,6 +50,12 @@
                                 </td>
                                 <td>
                                     <button type="button" 
+                                            class="btn btn-sm btn-outline-info" 
+                                            onclick="confirmDuplicate('{{ station.id }}', '{{ station.name }}')"
+                                            title="Générer plusieurs PC identiques">
+                                        🖨️
+                                    </button>
+                                    <button type="button" 
                                             class="btn btn-sm btn-outline-danger" 
                                             onclick="confirmDelete('{{ station.id }}', '{{ station.name }}')">
                                         🗑️
@@ -161,6 +167,30 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="duplicateModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-info bg-dark">
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title text-white">🖨️ Générer un parc de PC</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="duplicateForm" method="POST" action="">
+                <div class="modal-body text-white">
+                    <p>Vous allez cloner le modèle : <strong id="duplicateStationName" class="text-info"></strong></p>
+                    <div class="mb-3">
+                        <label class="form-label">Combien d'exemplaires voulez-vous créer ?</label>
+                        <input type="number" name="count" class="form-control bg-black text-white border-secondary" min="1" max="50" value="15" required>
+                        <div class="form-text text-muted">Ex: 15 générera automatiquement les postes #01 à #15.</div>
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-info text-dark fw-bold">Cloner les PC</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 <script>
     // --- LOGIQUE SUPPRESSION ---
     function confirmDelete(id, name) {
@@ -193,6 +223,12 @@
             editModal.show();
         });
     });
-    </script>
 
+    function confirmDuplicate(id, name) {
+    document.getElementById('duplicateStationName').innerText = name;
+    document.getElementById('duplicateForm').action = "/admin/station/" + id + "/duplicate";
+    const myModal = new bootstrap.Modal(document.getElementById('duplicateModal'));
+    myModal.show();
+    }
+</script>
 {% endblock %}

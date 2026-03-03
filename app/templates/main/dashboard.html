@@ -1,27 +1,98 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container mt-5">
+<div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="text-white m-0">📊 Analytics & Performance</h2>
+        <h2 class="text-white m-0">🛠️ Administration du Hub</h2>
         <span class="badge bg-primary">Admin Mode</span>
     </div>
 
     <div class="row g-4 mb-5">
+        
+        <div class="col-lg-5">
+            <div class="card bg-dark border-primary shadow h-100">
+                <div class="card-header border-primary text-white">
+                    <h5 class="m-0">🎟️ Scanner ou Valider un Billet</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted small">Utilisez l'appareil photo de votre téléphone pour flasher le QR Code du joueur, ou entrez le code de secours à 8 caractères ci-dessous :</p>
+                    <form action="{{ url_for('main.manual_validation') }}" method="POST" class="d-flex gap-2 mt-4">
+                        <input type="text" name="ticket_code" class="form-control bg-black text-white border-secondary text-uppercase" placeholder="Ex: A1B2C3D4" maxlength="8" required>
+                        <button type="submit" class="btn btn-primary px-4">Vérifier</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-7">
+            <div class="card bg-dark border-success shadow h-100">
+                <div class="card-header border-success text-white">
+                    <h5 class="m-0">💶 Paiement sur place (Ajout Manuel)</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted small mb-3">Ajouter instantanément un joueur sans passer par Stripe (Paiement en espèces/CB au comptoir).</p>
+                    <form action="{{ url_for('main.manual_booking') }}" method="POST">
+                        <div class="row g-2">
+                            <div class="col-md-6">
+                                <label class="text-light small">Email du joueur :</label>
+                                <input type="email" name="email" class="form-control form-control-sm bg-black text-white border-secondary" placeholder="joueur@email.com" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="text-light small">Choix du PC :</label>
+                                <select name="station_id" class="form-select form-select-sm bg-black text-white border-secondary" required>
+                                    <option value="" disabled selected>-- Sélectionner un PC --</option>
+                                    
+                                    {% for station in stations|sort(attribute='name') %}
+                                        
+                                        {% if ' #' in station.name %}
+                                            <option value="{{ station.id }}">{{ station.name }}</option>
+                                        {% endif %}
+                                        
+                                    {% endfor %}
+                                    
+                                </select>
+                            </div>
+                            <div class="col-md-4 mt-2">
+                                <label class="text-light small">Date :</label>
+                                <input type="date" name="date_resa" class="form-control form-control-sm bg-black text-white border-secondary" required>
+                            </div>
+                            <div class="col-md-3 mt-2">
+                                <label class="text-light small">Début :</label>
+                                <input type="time" name="start_time" class="form-control form-control-sm bg-black text-white border-secondary" required>
+                            </div>
+                            <div class="col-md-3 mt-2">
+                                <label class="text-light small">Fin :</label>
+                                <input type="time" name="end_time" class="form-control form-control-sm bg-black text-white border-secondary" required>
+                            </div>
+                            <div class="col-md-2 mt-2 d-flex align-items-end">
+                                <button type="submit" class="btn btn-success btn-sm w-100 fw-bold">Valider</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <hr class="border-secondary mb-5">
+
+    <h3 class="text-white mb-4">📊 Analytics & Performance</h3>
+    
+    <div class="row g-4 mb-4">
         <div class="col-md-4">
-            <div class="card bg-dark border-primary shadow-lg p-3">
+            <div class="card bg-dark border-primary shadow p-3">
                 <div class="text-muted small text-uppercase fw-bold">Chiffre d'Affaires</div>
                 <h2 class="text-primary mt-2">{{ "{:,.2f}".format(revenue) }} €</h2>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card bg-dark border-success shadow-lg p-3">
+            <div class="card bg-dark border-success shadow p-3">
                 <div class="text-muted small text-uppercase fw-bold">Réservations Payées</div>
                 <h2 class="text-success mt-2">{{ count }}</h2>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card bg-dark border-warning shadow-lg p-3">
+            <div class="card bg-dark border-warning shadow p-3">
                 <div class="text-muted small text-uppercase fw-bold">Panier moyen</div>
                 <h2 class="text-warning mt-2">{{ "{:,.2f}".format(revenue / count if count > 0 else 0) }} €</h2>
             </div>
@@ -33,7 +104,8 @@
             <div class="card bg-dark border-secondary h-100 shadow">
                 <div class="card-header border-secondary text-white fw-bold">📈 Pics d'Affluence (Heures)</div>
                 <div class="card-body">
-                    <div style="height: 300px;"> <canvas id="affluenceChart" data-hourly='{{ hourly_data|tojson }}'></canvas>
+                    <div style="height: 300px;"> 
+                        <canvas id="affluenceChart" data-hourly='{{ hourly_data|tojson }}'></canvas>
                     </div>
                 </div>
             </div>
@@ -43,10 +115,10 @@
             <div class="card bg-dark border-secondary h-100 shadow">
                 <div class="card-header border-secondary d-flex justify-content-between align-items-center">
                     <span class="text-white fw-bold">🕒 Activité Récente</span>
-                    <input type="text" id="searchInput" class="form-control form-control-sm w-50 bg-black text-white border-secondary" placeholder="Rechercher un client...">
+                    <input type="text" id="searchInput" class="form-control form-control-sm w-50 bg-black text-white border-secondary" placeholder="Rechercher...">
                 </div>
                 <div class="card-body p-0">
-                    <div class="table-responsive" style="max-height: 400px;">
+                    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
                         <table class="table table-dark table-hover mb-0 small align-middle">
                             <thead class="sticky-top bg-dark">
                                 <tr>
@@ -76,21 +148,16 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const chartElement = document.getElementById('affluenceChart');
         if (!chartElement) return;
     
-        // Récupération et Debugging
         const rawData = chartElement.getAttribute('data-hourly');
-        console.log("Données reçues de Python :", rawData); // Fais F12 dans Chrome pour voir ça
-        
         let chartData;
         try {
             chartData = JSON.parse(rawData);
         } catch (e) {
-            console.error("Erreur de lecture des données :", e);
             chartData = new Array(24).fill(0);
         }
     
@@ -114,25 +181,14 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: { 
-                    legend: { display: false },
-                    tooltip: { backgroundColor: '#1e1e1e' }
-                },
+                plugins: { legend: { display: false } },
                 scales: {
-                    y: { 
-                        beginAtZero: true, 
-                        grid: { color: '#333' }, 
-                        ticks: { color: '#999', stepSize: 1 } 
-                    },
-                    x: { 
-                        grid: { display: false },
-                        ticks: { color: '#999' }
-                    }
+                    y: { beginAtZero: true, grid: { color: '#333' }, ticks: { color: '#999', stepSize: 1 } },
+                    x: { grid: { display: false }, ticks: { color: '#999' } }
                 }
             }
         });
     
-        // Moteur de recherche (on le remet ici pour être sûr qu'il charge)
         const searchInput = document.getElementById('searchInput');
         if (searchInput) {
             searchInput.addEventListener('keyup', function() {
@@ -144,5 +200,5 @@
             });
         }
     });
-    </script>
+</script>
 {% endblock %}

@@ -8,11 +8,11 @@
         {% for station in stations %}
         <div class="col-md-4 mb-4">
             <div class="card h-100 shadow-sm">
-                <img src="{{ station.image_url }}" class="card-img-top" alt="{{ station.name }}" style="height: 200px; object-fit: cover;">
+                <img src="{{ station.image_url }}" class="card-img-top" alt="{{ station.display_name }}" style="height: 200px; object-fit: cover;">
                 
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h5 class="card-title mb-0">{{ station.name }}</h5>
+                        <h5 class="card-title mb-0">{{ station.display_name }}</h5>
                         {% if station.status == 'available' %}
                             <span class="badge bg-success">Disponible</span>
                         {% else %}
@@ -33,7 +33,7 @@
                                 class="btn btn-primary w-100" 
                                 data-bs-toggle="modal" 
                                 data-bs-target="#bookingModal"
-                                onclick="setStation('{{ station.id }}', '{{ station.name }}')">
+                                onclick="setStation('{{ station.id }}', '{{ station.display_name }}')">
                             Réserver ce poste
                         </button>
                     {% else %}
@@ -58,7 +58,22 @@
             <div class="modal-body">
                 
                 <form id="bookingForm">
-                    <input type="hidden" id="stationId">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">🖥️ Poste exact</label>
+                        <select class="form-select border-primary" id="stationId" required>
+                            <option value="" disabled selected>-- Choisissez votre PC --</option>
+                            
+                            {% for st in all_stations %}
+                                {% if ' #' in st.name %}
+                                    <option value="{{ st.id }}" data-basename="{{ st.name.split(' #')[0].strip() }}">
+                                        {{ st.name }}
+                                    </option>
+                                {% endif %}
+                            {% endfor %}
+                            
+                        </select>
+                        <div class="form-text small">Choisissez un numéro pour jouer à côté de vos amis.</div>
+                    </div>
                     
                     <div class="mb-3">
                         <label class="form-label">📅 Date de la session</label>
@@ -109,20 +124,61 @@
 </div>
 
 <script>
-    // Variable pour stocker les heures prises (accessible partout)
-    let globalTakenHours = [];
+// Variable pour stocker les heures prises (accessible partout)
+let globalTakenHours = [];
+let allStationOptions = [];
 
-    function setStation(id, name) {
-        document.getElementById('stationId').value = id;
-        document.getElementById('modalStationName').innerText = name;
-        
-        const today = new Date().toISOString().split('T')[0];
-        const dateInput = document.getElementById('bookingDate');
-        dateInput.value = today;
-        dateInput.min = today;
-        
-        fetchTakenHours(id, today);
+document.addEventListener('DOMContentLoaded', function() {
+    const select = document.getElementById('stationId');
+    if(select) {
+        // ⚡ CORRECTION : On cible spécifiquement les options qui ont un data-basename
+        const options = select.querySelectorAll('option[data-basename]');
+        options.forEach(opt => {
+            allStationOptions.push(opt.cloneNode(true));
+        });
     }
+});
+
+function setStation(id, name) {
+    if (!name) name = "PC";
+    
+    // ⚡ CORRECTION : On coupe au "#" (qu'il y ait un espace ou non) et on nettoie les espaces (trim)
+    const baseName = name.split('#')[0].trim(); 
+    document.getElementById('modalStationName').innerText = baseName;
+    
+    const select = document.getElementById('stationId');
+    
+    // On vide le menu
+    select.innerHTML = '<option value="" disabled selected>-- Choisissez votre PC --</option>';
+    
+    let firstValidId = null;
+
+    // On remplit avec les bonnes machines
+    allStationOptions.forEach(option => {
+        // On récupère le nom de famille de l'option
+        const optBaseName = option.getAttribute('data-basename');
+        
+        // Si ça correspond, on ajoute !
+        if (optBaseName === baseName) {
+            const newOption = option.cloneNode(true);
+            select.appendChild(newOption);
+            if (!firstValidId) firstValidId = newOption.value;
+        }
+    });
+
+    if (firstValidId) {
+        select.value = firstValidId;
+    }
+
+    const today = new Date().toISOString().split('T')[0];
+    const dateInput = document.getElementById('bookingDate');
+    dateInput.value = today;
+    dateInput.min = today;
+    
+    if (firstValidId) {
+        fetchTakenHours(firstValidId, today);
+    }
+}
 
     function fetchTakenHours(stationId, dateStr) {
         const selectStart = document.getElementById('startHour');
@@ -211,7 +267,16 @@
         document.getElementById('endTimePreview').innerText = (startHour + duration) + "h00";
     }
 
+
     // Écouteurs d'événements
+    document.getElementById('stationId').addEventListener('change', function() {
+        const newStationId = this.value;
+        const currentDate = document.getElementById('bookingDate').value;
+        if (currentDate) {
+            fetchTakenHours(newStationId, currentDate);
+        }
+    });
+
     document.getElementById('bookingDate').addEventListener('change', function() {
         const stationId = document.getElementById('stationId').value;
         const newDate = this.value; 

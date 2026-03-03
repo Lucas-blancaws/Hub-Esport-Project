@@ -11,6 +11,10 @@ from sqlalchemy import func
 from app.models import Reservation, User, Station
 from werkzeug.security import generate_password_hash
 import json
+from flask import abort
+from app.models import User, Reservation, Station
+import uuid
+from datetime import datetime
 
 
 # --- PAGES VUES ---
@@ -24,8 +28,19 @@ def booking():
 
 @bp.route('/stations')
 def stations():
-    stations_list = StationService.get_all_stations()
-    return render_template('main/stations.html', stations=stations_list)
+    all_stations = Station.query.filter_by(status='available').all()
+    
+    display_stations = []
+    seen_names = set()
+
+    for st in all_stations:
+        base_name = st.name.split(' #')[0].strip()
+        if base_name not in seen_names:
+            seen_names.add(base_name)
+            st.display_name = base_name 
+            display_stations.append(st)
+
+    return render_template('main/stations.html', stations=display_stations, all_stations=all_stations)
 
 # --- API ---
 @bp.route('/api/reservations')
@@ -119,15 +134,13 @@ def admin_panel():
         # On récupère le prix (s'il est vide, on met 5.0 par défaut par sécurité)
         price = request.form.get('price_per_hour', 5.0)
 
-        image_url = 'https://placehold.co/600x400/1e1e1e/FFF?text=PC+Gamer' # Image par défaut
+        image_url = 'https://placehold.co/600x400/1e1e1e/FFF?text=PC+Gamer'
 
         if 'station_image' in request.files:
             file = request.files['station_image']
             if file and file.filename != '':
                 try:
-                    # Cloudinary envoie le fichier et le compresse !
                     upload_result = cloudinary.uploader.upload(file)
-                    # On récupère le lien sécurisé (https) de l'image stockée
                     image_url = upload_result.get('secure_url')
                 except Exception as e:
                     flash(f"Erreur d'upload de l'image : {str(e)}", "danger")
@@ -141,8 +154,10 @@ def admin_panel():
         )
         flash("Station ajoutée avec succès !", "success")
         return redirect(url_for('main.admin_panel'))
-
-    stations = StationService.get_all_stations()
+    stations = Station.query.all()
+    print("\n" + "="*30)
+    print(f"🛠️ DEBUG ADMIN : J'ai trouvé {len(stations)} PC dans la base !")
+    print("="*30 + "\n")
     return render_template('main/admin.html', stations=stations)
 
 from flask import request, redirect, url_for, flash, abort
@@ -226,11 +241,9 @@ def admin_dashboard():
         for r in paid_reservations:
             hourly_data[r.start_time.hour] += 1
 
-        # 4. Préparation de la liste pour le tableau (On ajoute manuellement le nom du client)
         recent_resas = Reservation.query.filter(Reservation.status == 'paid')\
             .order_by(Reservation.start_time.desc()).limit(10).all()
         
-        # On crée une liste de dictionnaires pour que le HTML ait tout ce qu'il faut
         display_resas = []
         for res in recent_resas:
             # On va chercher l'utilisateur manuellement avec son ID
@@ -242,11 +255,14 @@ def admin_dashboard():
                 'amount': res.amount / 100
             })
 
+        stations = Station.query.all()
+
         return render_template('main/dashboard.html', 
                                revenue=revenue_euro, 
                                count=total_resas,
                                hourly_data=hourly_data,
-                               reservations=display_resas) # On envoie la nouvelle liste
+                               reservations=display_resas,
+                               stations=stations)
                                
     except Exception as e:
         print(f"❌ ERREUR DASHBOARD : {e}")
@@ -258,11 +274,9 @@ def profile():
     if request.method == 'POST':
         current_user.phone = request.form.get('phone')
         
-        # On récupère TOUS les jeux cochés (getlist)
         selected_games = request.form.getlist('favorite_games')
-        current_user.favorite_games = json.dumps(selected_games) # On enregistre en JSON
+        current_user.favorite_games = json.dumps(selected_games)
         
-        # Gestion mot de passe...
         new_password = request.form.get('new_password')
         if new_password:
             current_user.password_hash = generate_password_hash(new_password)
@@ -271,7 +285,6 @@ def profile():
         flash('Profil mis à jour !', 'success')
         return redirect(url_for('main.profile'))
     
-    # On décode le JSON pour l'envoyer au template (ou liste vide si erreur)
     try:
         user_games = json.loads(current_user.favorite_games or '[]')
     except:
@@ -279,5 +292,145 @@ def profile():
         
     mes_reservations = Reservation.query.filter_by(user_id=current_user.id).order_by(Reservation.start_time.desc()).all()
         
-    # On n'oublie pas de passer 'mes_reservations' au template HTML
     return render_template('main/profile.html', user_games=user_games, reservations=mes_reservations)
+
+@bp.route('/admin/validate/<stripe_id>')
+@login_required
+def validate_ticket(stripe_id):
+    if current_user.role != 'admin':
+        abort(403)
+
+    resa = Reservation.query.filter_by(stripe_session_id=stripe_id).first()
+
+    if not resa:
+        return render_template('main/validate.html', status='invalid')
+
+    joueur = User.query.get(resa.user_id)
+
+    if resa.status == 'paid':
+        return render_template('main/validate.html', status='valid', resa=resa, joueur=joueur)
+    elif resa.status == 'used':
+        return render_template('main/validate.html', status='used', resa=resa, joueur=joueur)
+    else:
+        return render_template('main/validate.html', status='unpaid', resa=resa, joueur=joueur)
+    
+
+@bp.route('/admin/validate_manual', methods=['POST'])
+@login_required
+def manual_validation():
+    if current_user.role != 'admin':
+        abort(403)
+    
+    code_saisi = request.form.get('ticket_code', '').strip().lower()
+    
+    # On cherche une réservation dont l'ID Stripe se termine par ce code
+    resa = Reservation.query.filter(Reservation.stripe_session_id.ilike(f"%{code_saisi}")).first()
+    
+    if resa:
+        return redirect(url_for('main.validate_ticket', stripe_id=resa.stripe_session_id))
+    else:
+        flash(f"❌ Billet introuvable pour le code {code_saisi.upper()}.", "danger")
+        return redirect(url_for('main.admin_panel'))
+    
+
+@bp.route('/admin/consume/<stripe_id>', methods=['POST'])
+@login_required
+def consume_ticket(stripe_id):
+    if current_user.role != 'admin':
+        abort(403)
+    
+    resa = Reservation.query.filter_by(stripe_session_id=stripe_id).first()
+    
+    if resa and resa.status == 'paid':
+        resa.status = 'used'
+        db.session.commit()
+        flash("Entrée validée ! Le joueur peut s'installer au PC.", "success")
+        
+    return redirect(url_for('main.validate_ticket', stripe_id=stripe_id))
+
+@bp.route('/admin/manual_booking', methods=['POST'])
+@login_required
+def manual_booking():
+    if current_user.role != 'admin':
+        abort(403)
+
+    email = request.form.get('email')
+    station_id = request.form.get('station_id')
+    date_resa = request.form.get('date_resa')
+    start_time_str = request.form.get('start_time')
+    end_time_str = request.form.get('end_time')
+
+    joueur = User.query.filter_by(email=email).first()
+    if not joueur:
+        flash("❌ Erreur : Aucun joueur trouvé avec cet email.", "danger")
+        return redirect(request.referrer)
+
+    start_time_str = start_time_str[:5]
+    end_time_str = end_time_str[:5]
+
+    try:
+        start = datetime.strptime(f"{date_resa} {start_time_str}", '%Y-%m-%d %H:%M')
+        end = datetime.strptime(f"{date_resa} {end_time_str}", '%Y-%m-%d %H:%M')
+    except Exception as e:
+        print(f"Erreur Date : {e}")
+        flash("❌ Erreur de format de date.", "danger")
+        return redirect(request.referrer)
+
+    conflit = Reservation.query.filter(
+        Reservation.station_id == station_id,
+        Reservation.status == 'paid',
+        Reservation.start_time < end,
+        Reservation.end_time > start
+    ).first()
+
+    if conflit:
+        heure_debut = conflit.start_time.strftime('%H:%M')
+        heure_fin = conflit.end_time.strftime('%H:%M')
+        flash(f"❌ Impossible : Ce PC est déjà réservé de {heure_debut} à {heure_fin}.", "danger")
+        return redirect(request.referrer)
+
+    fake_stripe_id = f"manual_{uuid.uuid4().hex[:12]}"
+    
+    nouvelle_resa = Reservation(
+        user_id=joueur.id,
+        station_id=station_id,
+        start_time=start,
+        end_time=end,
+        status='paid',
+        stripe_session_id=fake_stripe_id,
+        amount=0
+    )
+    db.session.add(nouvelle_resa)
+    db.session.commit()
+
+    flash(f"✅ Réservation ajoutée pour {joueur.username} ! Code: {fake_stripe_id[-8:].upper()}", "success")
+    return redirect(request.referrer)
+
+
+@bp.route('/admin/station/<int:station_id>/duplicate', methods=['POST'])
+@login_required
+def duplicate_station(station_id):
+    if current_user.role != 'admin':
+        abort(403)
+        
+    source_station = Station.query.get_or_404(station_id)
+    
+    try:
+        count = int(request.form.get('count', 1))
+    except ValueError:
+        count = 1
+
+    for i in range(1, count + 1):
+        nouvelle_station = Station(
+            name=f"{source_station.name} #{i:02d}", # Ajoute #01, #02...
+            type=source_station.type,               # Reprend le type (Elite, Standard...)
+            specs=source_station.specs,
+            price_per_hour=source_station.price_per_hour,
+            image_url=source_station.image_url,
+            status='available'
+        )
+        db.session.add(nouvelle_station)
+        
+    db.session.commit()
+    flash(f"✅ {count} exemplaires du poste '{source_station.name}' ont été générés !", "success")
+    return redirect(url_for('main.admin_panel'))
