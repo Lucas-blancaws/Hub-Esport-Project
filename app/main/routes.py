@@ -229,19 +229,22 @@ def admin_dashboard():
 
     try:
         # 1. Chiffre d'Affaires
-        total_revenue_cents = db.session.query(func.sum(Reservation.amount)).filter(Reservation.status == 'paid').scalar()
+        total_revenue_cents = db.session.query(func.sum(Reservation.amount)).filter(Reservation.status.in_(['paid', 'used']))\
+        .scalar()
         revenue_euro = (total_revenue_cents / 100) if total_revenue_cents else 0
 
         # 2. Nombre de réservations
-        total_resas = Reservation.query.filter(Reservation.status == 'paid').count()
+        total_resas = Reservation.query.filter(Reservation.status.in_(['paid', 'used']))\
+        .count()
         
         # 3. Données graphique
         hourly_data = [0] * 24
-        paid_reservations = Reservation.query.filter(Reservation.status == 'paid').all()
+        paid_reservations = Reservation.query.filter(Reservation.status.in_(['paid', 'used']))\
+        .all()
         for r in paid_reservations:
             hourly_data[r.start_time.hour] += 1
 
-        recent_resas = Reservation.query.filter(Reservation.status == 'paid')\
+        recent_resas = Reservation.query.filter(Reservation.status.in_(['paid', 'used']))\
             .order_by(Reservation.start_time.desc()).limit(10).all()
         
         display_resas = []
@@ -378,7 +381,7 @@ def manual_booking():
 
     conflit = Reservation.query.filter(
         Reservation.station_id == station_id,
-        Reservation.status == 'paid',
+        Reservation.status.in_(['paid', 'used']),
         Reservation.start_time < end,
         Reservation.end_time > start
     ).first()
