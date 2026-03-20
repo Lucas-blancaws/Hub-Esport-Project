@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h1 class="text-center mb-5">🚀 Nos Postes de Combat</h1>
+    <h1 class="text-center mb-5"> Nos Postes de Combat</h1>
 
     <div class="row">
         {% for station in stations %}
@@ -59,7 +59,7 @@
                 
                 <form id="bookingForm">
                     <div class="mb-3">
-                        <label class="form-label fw-bold">🖥️ Poste exact</label>
+                        <label class="form-label fw-bold">️ Poste exact</label>
                         <select class="form-select border-primary" id="stationId" required>
                             <option value="" disabled selected>-- Choisissez votre PC --</option>
                             
@@ -76,13 +76,13 @@
                     </div>
                     
                     <div class="mb-3">
-                        <label class="form-label">📅 Date de la session</label>
+                        <label class="form-label"> Date de la session</label>
                         <input type="date" class="form-control" id="bookingDate" required>
                     </div>
 
                     <div class="row">
                         <div class="col-6 mb-3">
-                            <label class="form-label">🕒 Début</label>
+                            <label class="form-label"> Début</label>
                             <select class="form-select" id="startHour" required>
                                 <option value="10:00">10h00</option>
                                 <option value="11:00">11h00</option>
@@ -111,12 +111,12 @@
                     </div>
                     
                     <div class="alert alert-secondary small mt-2">
-                        💡 Fin prévue à : <span id="endTimePreview">--:--</span>
+                         Fin prévue à : <span id="endTimePreview">--:--</span>
                     </div>
 
                     <div id="bookingError" class="alert alert-danger d-none text-center" role="alert"></div>
 
-                    <button type="submit" class="btn btn-primary w-100 fw-bold">💳 Payer et Réserver</button>
+                    <button type="submit" class="btn btn-primary w-100 fw-bold"> Payer et Réserver</button>
                 </form>
             </div>
         </div>
@@ -131,7 +131,7 @@ let allStationOptions = [];
 document.addEventListener('DOMContentLoaded', function() {
     const select = document.getElementById('stationId');
     if(select) {
-        // ⚡ CORRECTION : On cible spécifiquement les options qui ont un data-basename
+        //  CORRECTION : On cible spécifiquement les options qui ont un data-basename
         const options = select.querySelectorAll('option[data-basename]');
         options.forEach(opt => {
             allStationOptions.push(opt.cloneNode(true));
@@ -142,7 +142,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function setStation(id, name) {
     if (!name) name = "PC";
     
-    // ⚡ CORRECTION : On coupe au "#" (qu'il y ait un espace ou non) et on nettoie les espaces (trim)
+    //  CORRECTION : On coupe au "#" (qu'il y ait un espace ou non) et on nettoie les espaces (trim)
     const baseName = name.split('#')[0].trim(); 
     document.getElementById('modalStationName').innerText = baseName;
     
@@ -204,13 +204,13 @@ function setStation(id, name) {
         
         for (let i = 0; i < select.options.length; i++) {
             let option = select.options[i];
-            option.text = option.text.replace(' (Complet) ⛔️', '');
+            option.text = option.text.replace(' (Complet) ️', '');
             
             let hour = parseInt(option.value.split(':')[0]);
 
             if (globalTakenHours.includes(hour)) {
                 option.disabled = true;
-                option.text += ' (Complet) ⛔️';
+                option.text += ' (Complet) ️';
             } else {
                 option.disabled = false;
             }
@@ -244,10 +244,10 @@ function setStation(id, name) {
             
             if (durationVal > maxDuration) {
                 option.disabled = true;
-                if (!option.text.includes('⛔️')) option.text += ' (Trop long) ⛔️';
+                if (!option.text.includes('️')) option.text += ' (Trop long) ️';
             } else {
                 option.disabled = false;
-                option.text = option.text.replace(' (Trop long) ⛔️', '');
+                option.text = option.text.replace(' (Trop long) ️', '');
             }
         }
         if (parseInt(durationSelect.value) > maxDuration) {
@@ -294,10 +294,10 @@ function setStation(id, name) {
 
         const btn = document.querySelector('button[type="submit"]');
         const errorDiv = document.getElementById('bookingError');
-        const originalText = "💳 Payer et Réserver";
+        const originalText = " Payer et Réserver";
 
         errorDiv.classList.add('d-none');
-        btn.innerText = "🔄 Vérification...";
+        btn.innerText = " Vérification...";
         btn.disabled = true;
 
         const date = document.getElementById('bookingDate').value;
@@ -331,7 +331,7 @@ function setStation(id, name) {
             if (data.success && data.checkout_url) {
                 window.location.href = data.checkout_url;
             } else {
-                errorDiv.innerText = "⚠️ " + (data.message || "Erreur");
+                errorDiv.innerText = "️ " + (data.message || "Erreur");
                 errorDiv.classList.remove('d-none');
                 btn.innerText = originalText;
                 btn.disabled = false;
@@ -339,7 +339,7 @@ function setStation(id, name) {
         })
         .catch(error => {
             console.error(error);
-            errorDiv.innerText = "❌ Erreur technique";
+            errorDiv.innerText = " Erreur technique";
             errorDiv.classList.remove('d-none');
             btn.disabled = false;
             btn.innerText = originalText;

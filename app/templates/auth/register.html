@@ -33,7 +33,7 @@
                             <div class="input-group">
                                 <input type="password" class="form-control" id="password" name="password" required>
                                 <button class="btn btn-outline-secondary" type="button" id="togglePassword">
-                                    👁️
+                                    ️Afficher
                                 </button>
                             </div>
                         </div>
@@ -59,7 +59,7 @@
             const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
             password.setAttribute('type', type);
             
-            this.textContent = type === 'password' ? '👁️' : '🙈';
+            this.textContent = type === 'password' ? 'Afficher' : 'Masquer';
         });
     });
 </script>

@@ -7,7 +7,7 @@
             
             <div class="card bg-dark border-primary shadow-lg mb-5">
                 <div class="card-header border-primary text-white">
-                    <h3 class="m-0">👤 Mon Profil Hub Esport</h3>
+                    <h3 class="m-0"> Mon Profil Hub Esport</h3>
                 </div>
                 <div class="card-body text-white">
                     <form method="POST">
@@ -26,12 +26,12 @@
                         <hr class="border-secondary my-4">
 
                         <div class="mb-4">
-                            <label class="form-label">📱 Numéro de téléphone</label>
+                            <label class="form-label"> Numéro de téléphone</label>
                             <input type="text" name="phone" class="form-control bg-dark text-white border-secondary" value="{{ current_user.phone or '' }}" placeholder="06 00 00 00 00">
                         </div>
 
                         <div class="mb-4">
-                            <label class="form-label d-block text-primary fw-bold mb-3">🎮 Mes Jeux Favoris</label>
+                            <label class="form-label d-block text-primary fw-bold mb-3"> Mes Jeux Favoris</label>
                             
                             <div class="row g-3">
                                 {% set available_games = ['League of Legends', 'Valorant', 'Counter-Strike 2', 'Rocket League', 'Fortnite', 'Apex Legends'] %}
@@ -56,7 +56,7 @@
                         <hr class="border-secondary my-4">
 
                         <div class="mb-3">
-                            <label class="form-label">🔒 Nouveau mot de passe</label>
+                            <label class="form-label"> Nouveau mot de passe</label>
                             <input type="password" name="new_password" class="form-control bg-dark text-white border-secondary" placeholder="Laissez vide pour ne pas changer">
                         </div>
 
@@ -69,7 +69,7 @@
 
             <div class="card bg-dark border-primary shadow-lg mb-5">
                 <div class="card-header border-primary text-white">
-                    <h3 class="m-0">📜 Mon Historique de Réservations</h3>
+                    <h3 class="m-0"> Mon Historique de Réservations</h3>
                 </div>
                 <div class="card-body text-white">
                     
@@ -106,7 +106,7 @@
                                         <td>{{ (resa.amount / 100) | round(2) }} €</td>
                                         <td>
                                             {% if resa.status == 'paid' %}
-                                                <span class="badge bg-success">Payé ✅</span>
+                                                <span class="badge bg-success">Payé </span>
                                             {% else %}
                                                 <span class="badge bg-warning text-dark">{{ resa.status }}</span>
                                             {% endif %}

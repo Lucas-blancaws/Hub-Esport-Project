@@ -77,7 +77,7 @@ def reserve():
          return jsonify({'success': False, 'message': 'Minimum 10 minutes !'}), 400
 
     if not ResaService.check_availability(data.get('station_id'), start, end):
-        return jsonify({'success': False, 'message': '❌ Créneau déjà pris !'}), 409
+        return jsonify({'success': False, 'message': ' Créneau déjà pris !'}), 409
 
     try:
         url = PaymentService.create_checkout_session(
@@ -156,7 +156,7 @@ def admin_panel():
         return redirect(url_for('main.admin_panel'))
     stations = Station.query.all()
     print("\n" + "="*30)
-    print(f"🛠️ DEBUG ADMIN : J'ai trouvé {len(stations)} PC dans la base !")
+    print(f"️ DEBUG ADMIN : J'ai trouvé {len(stations)} PC dans la base !")
     print("="*30 + "\n")
     return render_template('main/admin.html', stations=stations)
 
@@ -268,7 +268,7 @@ def admin_dashboard():
                                stations=stations)
                                
     except Exception as e:
-        print(f"❌ ERREUR DASHBOARD : {e}")
+        print(f" ERREUR DASHBOARD : {e}")
         return f"Erreur lors du calcul des stats : {e}", 500
 
 @bp.route('/profile', methods=['GET', 'POST'])
@@ -332,7 +332,7 @@ def manual_validation():
     if resa:
         return redirect(url_for('main.validate_ticket', stripe_id=resa.stripe_session_id))
     else:
-        flash(f"❌ Billet introuvable pour le code {code_saisi.upper()}.", "danger")
+        flash(f" Billet introuvable pour le code {code_saisi.upper()}.", "danger")
         return redirect(url_for('main.admin_panel'))
     
 
@@ -348,7 +348,8 @@ def consume_ticket(stripe_id):
         resa.status = 'used'
         db.session.commit()
         flash("Entrée validée ! Le joueur peut s'installer au PC.", "success")
-        
+        return redirect(url_for('main.admin_dashboard'))
+    
     return redirect(url_for('main.validate_ticket', stripe_id=stripe_id))
 
 @bp.route('/admin/manual_booking', methods=['POST'])
@@ -365,7 +366,7 @@ def manual_booking():
 
     joueur = User.query.filter_by(email=email).first()
     if not joueur:
-        flash("❌ Erreur : Aucun joueur trouvé avec cet email.", "danger")
+        flash(" Erreur : Aucun joueur trouvé avec cet email.", "danger")
         return redirect(request.referrer)
 
     start_time_str = start_time_str[:5]
@@ -376,7 +377,7 @@ def manual_booking():
         end = datetime.strptime(f"{date_resa} {end_time_str}", '%Y-%m-%d %H:%M')
     except Exception as e:
         print(f"Erreur Date : {e}")
-        flash("❌ Erreur de format de date.", "danger")
+        flash(" Erreur de format de date.", "danger")
         return redirect(request.referrer)
 
     conflit = Reservation.query.filter(
@@ -389,7 +390,7 @@ def manual_booking():
     if conflit:
         heure_debut = conflit.start_time.strftime('%H:%M')
         heure_fin = conflit.end_time.strftime('%H:%M')
-        flash(f"❌ Impossible : Ce PC est déjà réservé de {heure_debut} à {heure_fin}.", "danger")
+        flash(f" Impossible : Ce PC est déjà réservé de {heure_debut} à {heure_fin}.", "danger")
         return redirect(request.referrer)
 
     fake_stripe_id = f"manual_{uuid.uuid4().hex[:12]}"
@@ -406,7 +407,7 @@ def manual_booking():
     db.session.add(nouvelle_resa)
     db.session.commit()
 
-    flash(f"✅ Réservation ajoutée pour {joueur.username} ! Code: {fake_stripe_id[-8:].upper()}", "success")
+    flash(f" Réservation ajoutée pour {joueur.username} ! Code: {fake_stripe_id[-8:].upper()}", "success")
     return redirect(request.referrer)
 
 
@@ -435,5 +436,5 @@ def duplicate_station(station_id):
         db.session.add(nouvelle_station)
         
     db.session.commit()
-    flash(f"✅ {count} exemplaires du poste '{source_station.name}' ont été générés !", "success")
+    flash(f" {count} exemplaires du poste '{source_station.name}' ont été générés !", "success")
     return redirect(url_for('main.admin_panel'))

@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h2 class="mb-4 text-white">🛠️ Administration du Hub</h2>
+    <h2 class="mb-4 text-white">️ Administration du Hub</h2>
 
     <div class="row g-4">
         
@@ -37,7 +37,7 @@
                                                class="form-control form-control-sm me-2 bg-dark text-white border-secondary" 
                                                step="0.5" min="1" 
                                                style="width: 75px;" required>
-                                        <button type="submit" class="btn btn-sm btn-outline-success" title="Sauvegarder">💾</button>
+                                        <button type="submit" class="btn btn-sm btn-outline-success">Sauvegarder</button>
                                     </form>
                                 </td>
 
@@ -53,18 +53,18 @@
                                             class="btn btn-sm btn-outline-info" 
                                             onclick="confirmDuplicate('{{ station.id }}', '{{ station.name }}')"
                                             title="Générer plusieurs PC identiques">
-                                        🖨️
+                                        ️Cloner
                                     </button>
                                     <button type="button" 
                                             class="btn btn-sm btn-outline-danger" 
                                             onclick="confirmDelete('{{ station.id }}', '{{ station.name }}')">
-                                        🗑️
+                                        ️Supprimer
                                     </button>
                                     <button class="btn btn-sm btn-outline-primary edit-btn" 
                                             data-id="{{ station.id }}"
                                             data-name="{{ station.name }}"
                                             data-specs="{{ station.specs }}">
-                                        ✏️
+                                        ️Modifier
                                     </button>
                                 </td>
                             </tr>
@@ -108,7 +108,7 @@
                             <label class="form-label">Photo du PC (Optionnel)</label>
                             <input type="file" name="station_image" class="form-control bg-dark text-white border-secondary" accept="image/*">
                         </div>
-                        <button type="submit" class="btn btn-success w-100 fw-bold">➕ Créer la machine</button>
+                        <button type="submit" class="btn btn-success w-100 fw-bold"> Créer la machine</button>
                     </form>
                 </div>
             </div>
@@ -120,7 +120,7 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-danger">
             <div class="modal-header border-secondary">
-                <h5 class="modal-title text-white">⚠️ Confirmation de suppression</h5>
+                <h5 class="modal-title text-white">️ Confirmation de suppression</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
@@ -171,7 +171,7 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-info bg-dark">
             <div class="modal-header border-secondary">
-                <h5 class="modal-title text-white">🖨️ Générer un parc de PC</h5>
+                <h5 class="modal-title text-white">️ Générer un parc de PC</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form id="duplicateForm" method="POST" action="">

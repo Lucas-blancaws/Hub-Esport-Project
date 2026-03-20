@@ -26,7 +26,7 @@ def send_confirmation_email(session, start_str, default_email):
         qr_code_image_url = f"https://quickchart.io/qr?size=250&text={url_encodee}"
         short_code = session.id[-8:].upper()
 
-        msg = Message('Confirmation de réservation 🎮 - Hub Esport',
+        msg = Message('Confirmation de réservation  - Hub Esport',
                       sender=current_app.config['MAIL_USERNAME'],
                       recipients=[client_email])
         
@@ -36,7 +36,7 @@ def send_confirmation_email(session, start_str, default_email):
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #333; border-radius: 10px; background-color: #121212; color: #ffffff;">
             
             <div style="background: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-                <h1 style="margin: 0; font-size: 28px;">🎮 Hub Esport</h1>
+                <h1 style="margin: 0; font-size: 28px;"> Hub Esport</h1>
                 <p style="margin: 10px 0 0 0; font-size: 16px;">Ton Billet d'Entrée</p>
             </div>
 
@@ -62,15 +62,15 @@ def send_confirmation_email(session, start_str, default_email):
 
                 <div style="background: #2b2b2b; padding: 20px; border-radius: 8px; border-left: 4px solid #0d6efd; margin: 20px 0;">
                     <h3 style="color: #0d6efd; margin-top: 0;">Détails de ta réservation</h3>
-                    <p style="color: #ffffff; margin: 5px 0;"><strong>📅 Date :</strong> {date_formatee}</p>
+                    <p style="color: #ffffff; margin: 5px 0;"><strong> Date :</strong> {date_formatee}</p>
                     <p style="color: #ffffff; margin: 5px 0;"><strong>⏰ Heure d'arrivée :</strong> {heure_formatee}</p>
-                    <p style="color: #ffffff; margin: 5px 0;"><strong>💰 Montant réglé :</strong> {(session.amount_total / 100):.2f} €</p>
+                    <p style="color: #ffffff; margin: 5px 0;"><strong> Montant réglé :</strong> {(session.amount_total / 100):.2f} €</p>
                 </div>
 
                 <div style="background: #0d6efd20; padding: 15px; border-radius: 8px; margin: 20px 0; border: 1px solid #0d6efd50;">
-                    <h4 style="color: #0d6efd; margin-top: 0;">📌 Informations pratiques</h4>
+                    <h4 style="color: #0d6efd; margin-top: 0;"> Informations pratiques</h4>
                     <p style="margin: 5px 0; color: #cccccc;">• Merci d'arriver 10 minutes avant le début de ta session.</p>
-                    <p style="margin: 5px 0; color: #cccccc;">• Prépare-toi à tryhard ! 🏆</p>
+                    <p style="margin: 5px 0; color: #cccccc;">• Prépare-toi à tryhard ! </p>
                 </div>
 
                 <p style="font-size: 14px; color: #888888; text-align: center; margin-top: 30px;">
@@ -82,19 +82,19 @@ def send_confirmation_email(session, start_str, default_email):
         """
         
         mail.send(msg)
-        print("✅ Email HTML (Design Premium) envoyé avec succès !")
+        print(" Email HTML (Design Premium) envoyé avec succès !")
         return True
     except Exception as e:
-        print(f"⚠️ ERREUR MAIL : {e}")
+        print(f"️ ERREUR MAIL : {e}")
         return False
 
 def send_reset_email(user):
     """Envoie l'email de réinitialisation de mot de passe au format HTML."""
     try:
-        print(f"📧 Tentative d'envoi de l'email de réinitialisation à : {user.email}")
+        print(f" Tentative d'envoi de l'email de réinitialisation à : {user.email}")
         
         token = user.get_reset_token()
-        msg = Message('Réinitialisation de ton mot de passe 🔒 - Hub Esport',
+        msg = Message('Réinitialisation de ton mot de passe  - Hub Esport',
                       sender=current_app.config['MAIL_USERNAME'],
                       recipients=[user.email])
         
@@ -107,7 +107,7 @@ def send_reset_email(user):
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #333; border-radius: 10px; background-color: #121212; color: #ffffff;">
             
             <div style="background: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-                <h1 style="margin: 0; font-size: 28px;">🎮 Hub Esport</h1>
+                <h1 style="margin: 0; font-size: 28px;"> Hub Esport</h1>
                 <p style="margin: 10px 0 0 0; font-size: 16px;">Sécurité de ton compte</p>
             </div>
 
@@ -125,7 +125,7 @@ def send_reset_email(user):
                 </div>
 
                 <div style="background: #2b2b2b; padding: 15px; border-radius: 8px; margin: 30px 0 10px 0; border-left: 4px solid #ffc107; text-align: left;">
-                    <h4 style="color: #ffc107; margin-top: 0; margin-bottom: 5px;">⚠️ Tu n'as rien demandé ?</h4>
+                    <h4 style="color: #ffc107; margin-top: 0; margin-bottom: 5px;">️ Tu n'as rien demandé ?</h4>
                     <p style="margin: 0; color: #aaaaaa; font-size: 14px;">
                         Si tu n'as pas fait cette demande, ignore simplement cet email. Ton compte est toujours en sécurité et ton mot de passe actuel reste inchangé.
                     </p>
@@ -140,8 +140,8 @@ def send_reset_email(user):
         """
         
         mail.send(msg)
-        print("✅ Email de réinitialisation HTML envoyé avec succès !")
+        print(" Email de réinitialisation HTML envoyé avec succès !")
         return True
     except Exception as e:
-        print(f"⚠️ ERREUR MAIL RÉINITIALISATION : {e}")
+        print(f"️ ERREUR MAIL RÉINITIALISATION : {e}")
         return False

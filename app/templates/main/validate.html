@@ -6,7 +6,7 @@
     {% if status == 'valid' %}
         <div class="card bg-success text-white shadow-lg mx-auto" style="max-width: 500px;">
             <div class="card-body p-5">
-                <h1 class="display-1">✅</h1>
+                <h1 class="display-1"></h1>
                 <h2 class="fw-bold">BILLET VALIDE</h2>
                 <hr class="bg-light my-4">
                 <h4 class="mb-3">Joueur : {{ joueur.username if joueur else 'Inconnu' }}</h4>
@@ -16,7 +16,7 @@
                 
                 <form action="{{ url_for('main.consume_ticket', stripe_id=resa.stripe_session_id) }}" method="POST">
                     <button type="submit" class="btn btn-light btn-lg w-100 fw-bold text-success shadow">
-                        👉 VALIDER L'ENTRÉE DU JOUEUR
+                         VALIDER L'ENTRÉE DU JOUEUR
                     </button>
                 </form>
             </div>
@@ -25,7 +25,7 @@
     {% elif status == 'used' %}
         <div class="card bg-secondary text-white shadow-lg mx-auto border border-danger border-5" style="max-width: 500px;">
             <div class="card-body p-5">
-                <h1 class="display-1">🛑</h1>
+                <h1 class="display-1"></h1>
                 <h2 class="fw-bold text-danger">DÉJÀ UTILISÉ</h2>
                 <hr class="bg-light my-4">
                 <p class="fs-5">Ce billet a <strong>déjà été scanné et validé</strong>.</p>
@@ -37,7 +37,7 @@
     {% elif status == 'unpaid' %}
         <div class="card bg-warning text-dark shadow-lg mx-auto" style="max-width: 500px;">
             <div class="card-body p-5">
-                <h1 class="display-1">⚠️</h1>
+                <h1 class="display-1">️</h1>
                 <h2 class="fw-bold">PAIEMENT EN ATTENTE</h2>
                 <p class="fs-5">Ce billet correspond à une réservation annulée ou non réglée.</p>
             </div>
@@ -46,7 +46,7 @@
     {% else %}
         <div class="card bg-danger text-white shadow-lg mx-auto" style="max-width: 500px;">
             <div class="card-body p-5">
-                <h1 class="display-1">❌</h1>
+                <h1 class="display-1"></h1>
                 <h2 class="fw-bold">BILLET FALSIFIÉ</h2>
                 <p class="fs-5">Ce billet (QR Code ou code saisi) est introuvable.</p>
             </div>

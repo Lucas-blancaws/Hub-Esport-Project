@@ -3,7 +3,7 @@
 {% block content %}
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="text-white m-0">🛠️ Administration du Hub</h2>
+        <h2 class="text-white m-0">️ Administration du Hub</h2>
         <span class="badge bg-primary">Admin Mode</span>
     </div>
 
@@ -12,7 +12,7 @@
         <div class="col-lg-5">
             <div class="card bg-dark border-primary shadow h-100">
                 <div class="card-header border-primary text-white">
-                    <h5 class="m-0">🎟️ Scanner ou Valider un Billet</h5>
+                    <h5 class="m-0">️ Scanner ou Valider un Billet</h5>
                 </div>
                 <div class="card-body">
                     <p class="text-muted small">Utilisez l'appareil photo de votre téléphone pour flasher le QR Code du joueur, ou entrez le code de secours à 8 caractères ci-dessous :</p>
@@ -27,7 +27,7 @@
         <div class="col-lg-7">
             <div class="card bg-dark border-success shadow h-100">
                 <div class="card-header border-success text-white">
-                    <h5 class="m-0">💶 Paiement sur place (Ajout Manuel)</h5>
+                    <h5 class="m-0"> Paiement sur place (Ajout Manuel)</h5>
                 </div>
                 <div class="card-body">
                     <p class="text-muted small mb-3">Ajouter instantanément un joueur sans passer par Stripe (Paiement en espèces/CB au comptoir).</p>
@@ -76,7 +76,7 @@
 
     <hr class="border-secondary mb-5">
 
-    <h3 class="text-white mb-4">📊 Analytics & Performance</h3>
+    <h3 class="text-white mb-4"> Analytics & Performance</h3>
     
     <div class="row g-4 mb-4">
         <div class="col-md-4">
@@ -102,7 +102,7 @@
     <div class="row g-4">
         <div class="col-lg-7">
             <div class="card bg-dark border-secondary h-100 shadow">
-                <div class="card-header border-secondary text-white fw-bold">📈 Pics d'Affluence (Heures)</div>
+                <div class="card-header border-secondary text-white fw-bold"> Pics d'Affluence (Heures)</div>
                 <div class="card-body">
                     <div style="height: 300px;"> 
                         <canvas id="affluenceChart" data-hourly='{{ hourly_data|tojson }}'></canvas>
@@ -114,7 +114,7 @@
         <div class="col-lg-5">
             <div class="card bg-dark border-secondary h-100 shadow">
                 <div class="card-header border-secondary d-flex justify-content-between align-items-center">
-                    <span class="text-white fw-bold">🕒 Activité Récente</span>
+                    <span class="text-white fw-bold"> Activité Récente</span>
                     <input type="text" id="searchInput" class="form-control form-control-sm w-50 bg-black text-white border-secondary" placeholder="Rechercher...">
                 </div>
                 <div class="card-body p-0">
